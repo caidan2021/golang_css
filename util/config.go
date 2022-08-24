@@ -26,7 +26,6 @@ type cnf struct {
 	RedisDB         int    `json:"redis_db"`
 	HttpAddr        string `json:"http_addr"`
 	FileStoragePath string `json:"file_storage_path"`
-	Assets          string `json:"assets"`
 
 	Debug bool   `json:"debug"`
 	Env   string `json:"env"`

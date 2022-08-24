@@ -29,32 +29,6 @@ type createItemReq struct {
 	ErrorMsg   string `json:"errorMsg"`
 }
 
-func OrderList(ctx *gin.Context) {
-	page, pageSize := util.Paging(ctx.DefaultQuery("page", "1"), ctx.DefaultQuery("pageSize", "15"))
-	ls := []*models.Order{}
-	query := drivers.Mysql().Model(&models.Order{})
-
-	var total int64
-	query.Count(&total)
-	if err := query.Order("id Desc").Offset(page).Limit(pageSize).Find(&ls).Error; err != nil {
-		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
-		return
-	}
-
-	res := []*models.OrderFmtOutPut{}
-	for _, order := range ls {
-		item, err := order.RenderData()
-		if err != nil {
-			ctx.JSON(http.StatusOK, util.FailedRespPackage(fmt.Sprintf("failed render order :%d, error: %v", order.ID, err)))
-			return
-		}
-		res = append(res, item)
-	}
-
-	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"list": res, "total": total}))
-	return
-}
-
 func BatchCreateOrder(ctx *gin.Context) {
 	type req struct {
 		Items []createItem `json:"items" form:"items" binding:"required"`

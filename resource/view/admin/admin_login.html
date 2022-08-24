@@ -1,3 +1,6 @@
+<!--
+ * @Date: 2022-08-23 11:28:45
+-->
 <!doctype html>
 <html lang="en">
  
@@ -34,29 +37,29 @@
     <!-- ============================================================== -->
     <div class="splash-container">
         <div class="card ">
-            <div class="card-header text-center"><a href="/statics/index.html"><img class="logo-img" src="/statics/assets/images/logo.png" alt="logo"></a><span class="splash-description">Please enter your user information.</span></div>
+            <div class="card-header text-center">><img class="logo-img" src="/statics/assets/images/logo.png" alt="logo"><span class="splash-description">Please enter your user information.</span></div>
             <div class="card-body">
                 <form>
                     <div class="form-group">
-                        <input required class="form-control form-control-lg" id="username" type="text" placeholder="Username" autocomplete="off" value="test">
+                        <input required class="form-control form-control-lg" id="username" type="text" placeholder="Username" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <input required class="form-control form-control-lg" id="password" type="password" placeholder="Password" value="asdflkjh">
+                        <input required class="form-control form-control-lg" id="password" type="password" placeholder="Password">
                     </div>
                     <div class="form-group">
                         <label class="custom-control custom-checkbox">
-                            <input class="custom-control-input" type="checkbox"><span class="custom-control-label">Remember Me</span>
+                            <input class="custom-control-input" type="checkbox" name="remember_me" id="remember"><span class="custom-control-label">Remember Me</span>
                         </label>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg btn-block" id="admin_login">Sign in</button>
+                    <input type="button" class="btn btn-primary btn-lg btn-block" id="admin_login" value="Sign in">
                 </form>
             </div>
             <div class="card-footer bg-white p-0  ">
                 <div class="card-footer-item card-footer-item-bordered">
-                    <a href="#" class="footer-link">Create An Account</a></div>
-                <div class="card-footer-item card-footer-item-bordered">
+                    <a href="/admin/view/admin_sign_up.html" class="footer-link">Create An Account</a></div>
+                <!-- <div class="card-footer-item card-footer-item-bordered">
                     <a href="#" class="footer-link">Forgot Password</a>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -65,56 +68,15 @@
     <!-- end login page  -->
     <!-- ============================================================== -->
     <!-- Optional JavaScript -->
-    <script src="/statics/assets/vendor/jquery/jquery-3.3.1.min.js"></script>
-    <script src="/statics/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>
+    {{ template "scripts" }}
 </body>
-
 <script>
+
     $('#admin_login').on('click', function(){
-        data = {
-            'username': $('#username').val(),
-            'password': $('#password').val()
-        };
-        url = "/admin/user/login";
-        // $.post(url, JSON.stringify(data), function(jsonResult) {
-        //     alert(jsonResult.data + "" + jsonResult.message)
-        //     if (res.data == null) {
-        //         alert(res.msg);
-        //     } else {
-        //         location.href = '/admin/view/admin_home';
-        //     }
-        // })
-
-        fetch("/admin/test", {
-            method: 'get',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        }).then(function(res) {
-            console.log(res.json());
-        });
-
-        // fetch(url, {
-        //     method: 'post',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(content)
-        // }).then(function(response) {
-        //     alert(response.data + "" + response.message);
-        //     return response.json();
-        // }).then(function(json) {
-        //     alert(json.data + "" + json.message)
-        //     if (json.data == null) {
-        //         alert(json.msg);
-        //     } else {
-        //         location.href = '/admin/view/admin_home';
-        //     }
-        // }).catch(function(error) {
-        //     console.log(error);
-        // });
+        adminLogion()
     })
 
 </script>
+
  
 </html>

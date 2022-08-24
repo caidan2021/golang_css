@@ -7,6 +7,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"gin/drivers"
+	"time"
 )
 
 const (
@@ -51,6 +52,7 @@ type OrderFmtOutPut struct {
 	ThirdPartyOrderFlag string       `json:"thirdPartyOrderFlag"`
 	OrderStatusText     string       `json:"order"`
 	AddressInfo         OrderAddress `json:"addressInfo"`
+	CreatedTime         string       `json:"createdTime"`
 	Extra               string       `json:"extra"`
 }
 
@@ -113,6 +115,7 @@ func (o Order) AddressFmt() OrderAddress {
 func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmt := OrderFmtOutPut{}
 	fmt.Order = o
+	fmt.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:04:05")
 	fmt.OrderStatusText = o.GetOrderStatusText()
 	fmt.ThirdPartyOrderFlag = o.GetThirdPartyFlag()
 	fmt.AddressInfo = o.AddressFmt()

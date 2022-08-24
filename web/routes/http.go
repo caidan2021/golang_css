@@ -43,11 +43,11 @@ func registerRoute() {
 	{
 		// 创建用户
 		admin.POST("/user/add", controller.AddAdminUser)
+		admin.GET("/order/list", controller.OrderList)
 	}
 
 	order := c.Group("/order").Use(middlewares.AdminAuth())
 	{
-		order.GET("/list", web.OrderList)
 		order.POST("/create/batch", web.BatchCreateOrder)
 	}
 

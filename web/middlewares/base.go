@@ -4,33 +4,46 @@
 package middlewares
 
 import (
+	"fmt"
 	"gin/models"
+	"gin/service"
 	"gin/util"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func AdminAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if util.IsLocalEnv() {
-			ctx.Next()
-			return
+
+		// 获取token
+		token, _ := ctx.Cookie("css-token")
+		if token == "" {
+			token = ctx.Request.Header.Get("Css-Token")
 		}
-		authInfo := &util.BaseAuth{
-			Name:     ctx.Request.Header.Get("Css-Name"),
-			Password: ctx.Request.Header.Get("Css-Password"),
-		}
-		if authInfo.Name == "" || authInfo.Password == "" {
-			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("登陆失败"))
+
+		if token == "" {
+			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("请登陆"))
 			return
 		}
 
-		admin, _ := models.GetAdminUserByNameAndPw(authInfo.Name, authInfo.Password)
-		if admin == nil {
-			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("账号密码错误"))
+		// 解析token
+		info, err := service.ParseToken(token)
+		if err != nil {
+			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("请登陆"))
 			return
 		}
-		ctx.Set(util.AdminUserKey, authInfo)
+		if info.ExpiresAt < time.Now().Unix() {
+			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("请登陆"))
+			return
+		}
+		admin, _ := models.GetAdminUserByToken(token)
+		if admin != nil {
+			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("请登陆"))
+			return
+		}
+		ctx.Set(util.AdminUserKey, admin)
+		fmt.Println(ctx.Get(util.AdminUserKey))
 		ctx.Next()
 	}
 }

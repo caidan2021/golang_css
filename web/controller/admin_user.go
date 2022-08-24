@@ -50,9 +50,9 @@ func AddAdminUser(ctx *gin.Context) {
 
 func LoginAdmin(ctx *gin.Context) {
 	type req struct {
-		UserName      string `json:"username" binding:"required"`
-		Password      string `json:"password" binding:"required"`
-		RememberToken string `json:"rememberToken"`
+		UserName   string `json:"username" binding:"required"`
+		Password   string `json:"password" binding:"required"`
+		RememberMe bool   `json:"rememberMe" default:"true"`
 	}
 
 	r := req{}
@@ -71,6 +71,10 @@ func LoginAdmin(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, util.FailedRespPackage("密码错误"))
 		return
 	}
+
+	adminUser.UpdateRememberMe(r.RememberMe)
+	ctx.SetCookie("css-token", adminUser.RememberToken, 86400*14, "/", util.Config.HttpAddr, false, true)
+
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(adminUser))
 	return
 }

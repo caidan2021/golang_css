@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"gin/drivers"
+	"gin/service"
 
 	"gorm.io/gorm"
 )
@@ -37,6 +38,16 @@ func GetAdminUserByNameAndPw(name, pw string) (*AdminUser, error) {
 	return _one, nil
 }
 
+func GetAdminUserByToken(token string) (*AdminUser, error) {
+	_one := &AdminUser{}
+	if err := drivers.Mysql().Model(&AdminUser{}).Where("remember_token = ?", token).First(&_one).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+	}
+	return _one, nil
+}
+
 func (AdminUser) NameExists(name string, id int64) bool {
 	query := drivers.Mysql().Model(&AdminUser{}).Where("name = ?", name)
 	if id != 0 {
@@ -52,4 +63,17 @@ func (AdminUser) EncryptionPw(password string) string {
 	h := md5.New()
 	h.Write([]byte(password))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (a *AdminUser) UpdateRememberMe(rememberMe bool) {
+	if rememberMe {
+		newToken, err := service.GenerateToken(a.Name)
+		if err != nil {
+			return
+		}
+		a.RememberToken = newToken
+	} else {
+		a.RememberToken = ""
+	}
+	drivers.Mysql().Save(&a)
 }

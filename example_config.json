@@ -1,0 +1,14 @@
+{
+    "mysql_host":"127.0.0.1",
+    "mysql_user":"root",
+    "mysql_password":"123456",
+    "mysql_port":"3306",
+    "mysql_database":"css",
+    "redis_host":"",
+    "redis_port":"",
+    "redis_auth":"",
+    "http_addr":"0.0.0.0:10000",
+    "debug":true,
+    "env":"local",
+    "file_storage_path":""
+}

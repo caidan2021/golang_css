@@ -12,7 +12,7 @@ import (
 
 func Handler(ctx *gin.Context) {
 	pageName := ctx.Param("pageName")
-	if !strings.HasPrefix(pageName, "admin_") {
+	if !strings.HasPrefix(pageName, "admin_") && !strings.HasPrefix(pageName, "tmpl") {
 		pageName = "admin_" + pageName
 	}
 	if !strings.HasSuffix(pageName, ".html") {
@@ -20,8 +20,4 @@ func Handler(ctx *gin.Context) {
 	}
 	ctx.HTML(http.StatusOK, pageName, gin.H{})
 
-}
-
-func AdminLogin(ctx *gin.Context) {
-	ctx.HTML(200, "admin_login.html", gin.H{})
 }
