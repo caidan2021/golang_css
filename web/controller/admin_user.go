@@ -73,7 +73,7 @@ func LoginAdmin(ctx *gin.Context) {
 	}
 
 	adminUser.UpdateRememberMe(r.RememberMe)
-	ctx.SetCookie("css-token", adminUser.RememberToken, 86400*14, "/", util.Config.HttpAddr, false, true)
+	ctx.SetCookie("css-token", adminUser.RememberToken, 86400*14, "/", util.Config.Demon, false, true)
 
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(adminUser))
 	return
