@@ -101,9 +101,9 @@ function orderList() {
                     var thumbnails = "";
                     for (k = 0; k < item[$1].length; k++) {
                         if (k != 0) {
-                            thumbnails += "&&<img src='" + item[$1][k] + "' width='25%' alt='加载失败' />"
+                            thumbnails += "&&<img src='" + item[$1][k] + "' height='75px' alt='加载失败' />"
                         } else {
-                            thumbnails += "<img src='" + item[$1][k] + "' width='25%' alt='加载失败' />"
+                            thumbnails += "<img src='" + item[$1][k] + "' height='75px' alt='加载失败' />"
                         }
                     }
                     return thumbnails
