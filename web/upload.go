@@ -35,7 +35,7 @@ func Upload(ctx *gin.Context) {
 		return
 	}
 
-	rt := "http://" + util.Config.HttpAddr + "/img/" + newFileName
+	rt := "http://" + util.Config.FileAddr + "/img/" + newFileName
 
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"path": rt}))
 	return

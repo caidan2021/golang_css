@@ -27,6 +27,7 @@ type cnf struct {
 	HttpAddr        string `json:"http_addr"`
 	FileStoragePath string `json:"file_storage_path"`
 	Demon           string `json:"demon"`
+	FileAddr        string `json:"fileAddr"`
 
 	Debug bool   `json:"debug"`
 	Env   string `json:"env"`

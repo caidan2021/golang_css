@@ -4,7 +4,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"gin/models"
 	"gin/service"
 	"gin/util"
@@ -15,6 +14,16 @@ import (
 
 func AdminAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+
+		userName := ctx.Request.Header.Get("Css-name")
+		password := ctx.Request.Header.Get("Css-password")
+		if userName != "" || password != "" {
+			if admin, _ := models.GetAdminUserByNameAndPw(userName, password); admin != nil {
+				ctx.Set(util.AdminUserKey, admin)
+				ctx.Next()
+				return
+			}
+		}
 
 		// 获取token
 		token, _ := ctx.Cookie("css-token")
@@ -43,7 +52,6 @@ func AdminAuth() gin.HandlerFunc {
 			return
 		}
 		ctx.Set(util.AdminUserKey, admin)
-		fmt.Println(ctx.Get(util.AdminUserKey))
 		ctx.Next()
 	}
 }
