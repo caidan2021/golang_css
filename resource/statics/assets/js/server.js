@@ -91,7 +91,7 @@ function orderList() {
             return
         }
 
-        var html = "<thead><tr><th width='5%'>ID</th><th>图片</th><th width='15%'>订单No</th><th width='10%'>创建时间</th></tr></thead><tbody id='tbody'></tbody>"
+        var html = "<thead><tr><th width='5%'>ID</th><th>封面</th><th width='15%'>订单No</th><th width='10%'>创建时间</th></tr></thead><tbody id='tbody'></tbody>"
         var tr = "<tr><td>{id}</td><td>{thumbnail}</td><td>{outOrderNo}</td><td>{createdTime}</td></tr>"
 
         list = jsonResult.data.list
