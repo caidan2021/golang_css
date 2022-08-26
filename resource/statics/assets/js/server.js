@@ -70,18 +70,23 @@ function adminLogion()
 
 
 function orderList() {
-    url = "/admin/order/list";
 
+    var url = "/admin/order/list?";
+
+    var params = [];
     request = GetRequest()
     if (request.orderNo != undefined) {
-        url = url + "?orderNo=" + request.orderNo
+        params.push({"name": "orderNo", "value": request.orderNo});
     }
+    if (request.page != undefined) {
+        params.push({"name": "page", "value": request.page});
+    } 
+    url = ReplaceOrAddRequest(params, url)
 
     options = {
         method: 'get',
         headers: {
             "Content-Type": "application/json charset=utf-8",
-            "Css-Token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VybmFtZSI6InRlc3QiLCJleHAiOjE2NjI0NzQ5MTR9.hu6Uem_En5QWReoy81-bioQBOZ_BMFlAUpvjImqSk34"
         },
     }
 
@@ -113,10 +118,27 @@ function orderList() {
 
         });
         $(".order-list").append(html)
+        listPaginate(jsonResult.data.total)
     }).catch(function(error) {
         console.log(error);
     });
 
 }
 
+function listPaginate(totalCount, pageSize = 15)
+{
+
+    paginate = "<nav aria-label='Page navigation'><ul class='pagination justify-content-center'>";
+    pageLimit = totalCount % pageSize == 0 ? parseInt(totalCount / pageSize) : parseInt(totalCount / pageSize) + 1;
+
+    currentPage = GetUrlParam("page") ?? 1
+    for (i = 0; i < pageLimit; i++) {
+
+        params = [{"name": "page","value": i + 1}]
+        cls = 'page-link ' + (currentPage == i + 1 ? 'bg-primary' : '');
+        paginate += "<li class='page-item'><a class='" + cls + "' href='" + ReplaceOrAddRequest(params) +  "'>" + (i + 1) + "</a></li>"
+    }
+    paginate += "</ul></nav>";
+    $("#pagination").append(paginate)
+}
 

@@ -11,7 +11,7 @@ function GetRequest(urlStr) {
     if (typeof urlStr == "undefined") {
         var url = decodeURI(location.search); //获取url中"?"符后的字符串
     } else {
-        var url = "?" + urlStr.split("?")[1];
+        var url = (typeof urlStr.split("?")[1] == 'undefined' ? "" : "?" + urlStr.split("?")[1]);
     }
     var theRequest = new Object();
     if (url.indexOf("?") != -1) {
@@ -22,4 +22,34 @@ function GetRequest(urlStr) {
         }
     }
     return theRequest;
+}
+
+/**
+ * 追加参数（如果有，则替换）
+ */
+function ReplaceOrAddRequest(params, url = "")
+{
+    if (url == "") {
+        url = window.location.href
+        baseUrl = window.location.origin + window.location.pathname + "?";
+    } else {
+        baseUrl = url;
+    }
+    // 获取当前的参数
+    currentRequest = GetRequest(url);
+
+    $.each(params, function(_, item) {
+        currentRequest[item.name] = item.value
+    });
+
+    newRequest = new URLSearchParams(currentRequest).toString()
+    newUrl = baseUrl + newRequest
+    return newUrl;
+}
+
+function GetUrlParam(name)
+{
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+    var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+    if (r != null) return unescape(r[2]); return null; //返回参数值
 }
