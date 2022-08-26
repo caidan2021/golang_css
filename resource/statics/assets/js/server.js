@@ -3,11 +3,13 @@
  */
 
 function commonFetch(url, options) {
+    $('#loading').modal('show');
     return fetch(url, options).then(function(response) {
         if (response.status == 403) {
             location.href = "/admin/view/admin_login"
             return
         }
+        $('#loading').modal('hide');
         return response.json();
     })
 }
@@ -141,4 +143,3 @@ function listPaginate(totalCount, pageSize = 15)
     paginate += "</ul></nav>";
     $("#pagination").append(paginate)
 }
-

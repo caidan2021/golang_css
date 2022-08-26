@@ -430,3 +430,18 @@ John Abraham</h5>
     <script type="text/javascript" src="/statics/assets/js/server.js"></script>
     <script type="text/javascript" src="/statics/assets/js/helper.js"></script>
 {{ end }}
+
+{{ define "loading" }}
+<div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static'>
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="myModalLabel">数据加载中</h4>
+        </div>
+        <div class="modal-body">
+          请耐性等待<span id="result"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+{{ end }}
