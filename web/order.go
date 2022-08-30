@@ -4,10 +4,8 @@
 package web
 
 import (
-	"encoding/json"
-	"fmt"
 	"gin/drivers"
-	"gin/models"
+	"gin/service"
 	"gin/util"
 	"net/http"
 
@@ -15,15 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type createItem struct {
-	ThirdPartyFlag string                 `json:"thirdPartyFlag" bing:"required"`
-	OutOrderNo     string                 `json:"outOrderNo" bing:"required"`
-	Thumbnails     *models.OrderThumbnail `json:"thumbnails"`
-	AddressInfo    string                 `json:"addressInfo"`
-	Extra          string                 `json:"extra" bing:"required"`
-}
-
-type createItemReq struct {
+type CreateItemRes struct {
 	OutOrderNo string `json:"outOrderNo"`
 	Rt         bool   `json:"rt"`
 	ErrorMsg   string `json:"errorMsg"`
@@ -31,7 +21,7 @@ type createItemReq struct {
 
 func BatchCreateOrder(ctx *gin.Context) {
 	type req struct {
-		Items []createItem `json:"items" form:"items" binding:"required"`
+		Items []service.OrderCreateItem `json:"items" form:"items" binding:"required"`
 	}
 
 	r := req{}
@@ -42,64 +32,15 @@ func BatchCreateOrder(ctx *gin.Context) {
 		return
 	}
 
-	res := []*createItemReq{}
-
+	res := []*CreateItemRes{}
 	err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
-
 		for _, item := range r.Items {
-
-			itemRt := createItemReq{
+			itemRt := CreateItemRes{
 				OutOrderNo: item.OutOrderNo,
 				Rt:         true,
 			}
-
-			newOrder := models.Order{}
-
-			thirdPartyId := newOrder.GetThirdPartyOrderIdByFlag(item.ThirdPartyFlag)
-			if thirdPartyId == 0 {
-				itemRt.setCreateItemFailed("invalid third party flag")
-				res = append(res, &itemRt)
-				continue
-			}
-
-			if newOrder.OutOrderNoExistsByThirdPartyId(item.OutOrderNo, thirdPartyId) {
-				itemRt.setCreateItemFailed("out order is exists")
-				res = append(res, &itemRt)
-				continue
-			}
-
-			addressOK, err := newOrder.AddressCheck(item.AddressInfo)
-			if err != nil || !addressOK {
-				itemRt.setCreateItemFailed("invalid address")
-				res = append(res, &itemRt)
-				continue
-			}
-
-			addressJson, err := json.Marshal(item.AddressInfo)
-			if err != nil {
-				itemRt.setCreateItemFailed(fmt.Sprintf("failed to parse address info, origin data: %s : %v", item.AddressInfo, err))
-				res = append(res, &itemRt)
-				continue
-			}
-			extraJson, err := json.Marshal(item.Extra)
-			if err != nil {
-				itemRt.setCreateItemFailed(fmt.Sprintf("failed to parse extra info, origin data: %s : %v", item.Extra, err))
-				res = append(res, &itemRt)
-				continue
-			}
-
-			newOrder.ThirdPartyID = thirdPartyId
-			newOrder.OutOrderNo = item.OutOrderNo
-			fmt.Println(item.Thumbnails)
-			if item.Thumbnails != nil {
-				newOrder.Thumbnail = *item.Thumbnails
-			}
-			newOrder.AddressInfo = string(addressJson)
-			newOrder.Extra = string(extraJson)
-			if err := tx.Create(&newOrder).Error; err != nil {
-				itemRt.setCreateItemFailed(fmt.Sprintf("failed to create order outOrderNo: %s, error: %v", item.OutOrderNo, err))
-				res = append(res, &itemRt)
-				continue
+			if _, err := service.CreateOrder(tx, item); err != nil {
+				itemRt.setCreateItemFailed(err.Error())
 			}
 			res = append(res, &itemRt)
 		}
@@ -115,7 +56,7 @@ func BatchCreateOrder(ctx *gin.Context) {
 	return
 }
 
-func (c *createItemReq) setCreateItemFailed(errorMsg string) {
+func (c *CreateItemRes) setCreateItemFailed(errorMsg string) {
 	c.Rt = false
 	c.ErrorMsg = errorMsg
 }

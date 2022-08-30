@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"gin/drivers"
 	"gin/models"
+	"gin/service"
 	"gin/util"
 	"net/http"
 
@@ -44,4 +45,21 @@ func OrderList(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"list": res, "total": total}))
 	return
+}
+
+func AdminCreateOrder(ctx *gin.Context) {
+	r := service.OrderCreateItem{}
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		errorMsg := util.ValidatorError(err)
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(errorMsg))
+		return
+	}
+
+	tx := drivers.Mysql()
+	newOrder, err := service.CreateOrder(tx, r)
+	if err != nil {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
+		return
+	}
+	ctx.JSON(http.StatusOK, util.SuccessRespPackage(newOrder.OutOrderNo))
 }

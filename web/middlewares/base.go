@@ -5,7 +5,6 @@ package middlewares
 
 import (
 	"gin/models"
-	"gin/service"
 	"gin/util"
 	"time"
 
@@ -37,7 +36,7 @@ func AdminAuth() gin.HandlerFunc {
 		}
 
 		// 解析token
-		info, err := service.ParseToken(token)
+		info, err := models.ParseToken(token)
 		if err != nil {
 			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("请登陆"))
 			return
