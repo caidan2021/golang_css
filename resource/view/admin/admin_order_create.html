@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
+    <meta name="referrer" content="no-referrer">
+    <title>Order List</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/statics/assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/statics/assets/vendor/bootstrap/css/fileinput.css">
+    <link href="/statics/assets/vendor/fonts/circular-std/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="/statics/assets/libs/css/style.css">
+    <link rel="stylesheet" href="/statics/assets/vendor/fonts/fontawesome/css/fontawesome-all.css">
+</head>
+
+<body>
+    <!-- ============================================================== -->
+    <!-- main wrapper -->
+    <!-- ============================================================== -->
+    <div class="dashboard-main-wrapper">
+
+        {{template "header"}}
+        {{template "sidebar"}}
+
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        <div class="dashboard-wrapper">
+            <div class="container-fluid  dashboard-content">
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Order List</h2>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Orders</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">List</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <div class="card">
+                    <h5 class="card-header">Create Order Form</h5>
+                    <div class="card-body">
+                        <form id="form" data-parsley-validate="" novalidate="" method="POST">
+                            <div class="form-group row">
+                                <label for="inputEmail2" class="col-3 col-lg-2 col-form-label text-right">第三方标识</label>
+                                <div class="col-9 col-lg-10">
+                                    <select class="form-control" id="thirdPartyFlag" name="thirdPartyFlag" required>
+                                        <option value="amz">Choose Example</option>
+                                        <option value="amz">Choose Example</option>
+                                        <option value="amz">Choose Example</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputEmail2" class="col-3 col-lg-2 col-form-label text-right">外部单号</label>
+                                <div class="col-9 col-lg-10">
+                                    <input id="outOrderNo" name="outOrderNo" required type="text" required="" placeholder="" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="inputEmail2" class="col-3 col-lg-2 col-form-label text-right">图片</label>
+                                <div class="col-9 col-lg-10">
+                                    <div class="custom-file mb-3">
+                                        <input id="uploadImgs" name="file" type="file" multiple class="file" data-overwrite-initial="false">
+                                    </div>
+                                    <div class="custom-file mb-3" id="formUploadImgs">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pt-2 pt-sm-5 mt-1">
+                                <div class="col-sm-6 pl-0">
+                                    <p class="text-right">
+                                        <input type="button" class="btn btn-space btn-primary" id="create_order_btn" value="Submit">
+                                        <input type="button" class="btn btn-space btn-secondary" value="Cancel">
+                                    </p>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            <!-- footer -->
+            {{ template "footer" }}
+            {{ template "loading" }}
+            <!-- end footer -->
+        </div>
+    </div>
+    {{ template "scripts" }}
+    
+</body>
+<script>
+    $(document).ready(function() {
+        $("#create_order_btn").click(function() {
+            createOrder()
+        })
+    })
+
+    $("#uploadImgs").fileinput({
+        language: 'zh',//使用中文
+        theme: 'fa',
+        showUpload: true,//upload按钮不显示
+        uploadUrl: '/tools/file/upload',//服务器url调用路径
+        allowedFileExtensions: ['jpg', 'png', 'gif', 'jpeg'],//允许的文件格式
+        overwriteInitial: false,
+        // uploadAsync: false, //异步上传有几个文件就会请求几次
+        maxFileSize: 1024,//文件最大kb
+        maxFilesNum: 5,//文件最大数量
+        minFileCount:1,
+        slugCallback: function (filename) { //选择后未上传前 回调方法
+            return filename.replace('(', '_').replace(']', '_');
+        },
+    }).on("fileuploaded", function(event,data) { //异步上传成功后回调
+        sort = $(".hidden_img").length
+        html = "<input type='hidden' name='imgs[]' class='hidden_img " + sort + "' id='hidden_img' value='"+data.response.data.path+"' />";
+        $("#formUploadImgs").append(html)
+    });
+
+
+</script>
+ 
+</html>

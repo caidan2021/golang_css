@@ -145,10 +145,10 @@ John Abraham</h5>
                                                 <a class="nav-link" href="/statics/ecommerce-product.html">Product List</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="/statics/ecommerce-product-single.html">Product Single</a>
+                                                <a class="nav-link" href="/statics/tmpl_ecommerce-product-single.html">Product Single</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="nav-link" href="/statics/ecommerce-product-checkout.html">Product Checkout</a>
+                                                <a class="nav-link" href="/statics/tmpl_ecommerce-product-checkout.html">Product Checkout</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -418,30 +418,27 @@ John Abraham</h5>
 {{end}}
 
 {{ define "scripts" }}
-    <script src="/statics/assets/vendor/jquery/jquery-3.3.1.min.js"></script>
-    <script src="/statics/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>
-    <script src="/statics/assets/vendor/slimscroll/jquery.slimscroll.js"></script>
-    <script src="/statics/assets/vendor/multi-select/js/jquery.multi-select.js"></script>
-    <script src="/statics/assets/libs/js/main-js.js"></script>
-
-    <script src="/statics/assets/vendor/jquery/jquery-3.3.1.min.js"></script>
-    <!-- <script src="/statics/assets/vendor/jquery/jquery.cookie.js"></script> -->
-    <script src="/statics/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>
-    <script type="text/javascript" src="/statics/assets/js/server.js"></script>
-    <script type="text/javascript" src="/statics/assets/js/helper.js"></script>
+    <script type='text/javascript' src='/statics/assets/js/admin/base.js'></script>
 {{ end }}
 
 {{ define "loading" }}
-<div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static'>
+<div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" id="myModalLabel">数据加载中</h4>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">数据加载中</h5>
+                <a href="#" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </a>
+            </div>
+            <div class="modal-body">
+                <p>请等待</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-secondary" data-dismiss="modal">Close</a>
+                <a href="#" class="btn btn-primary">Save changes</a>
+            </div>
         </div>
-        <div class="modal-body">
-          请耐性等待<span id="result"></span>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
 {{ end }}

@@ -1,6 +1,7 @@
 /*
  * @Date: 2022-08-23 17:02:41
  */
+
 /**
  * [获取URL中的参数名及参数值的集合]
  * 示例URL:http://htmlJsTest/getrequest.html?uid=admin&rid=1&fid=2&name=小明

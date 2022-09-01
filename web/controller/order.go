@@ -25,6 +25,10 @@ func OrderList(ctx *gin.Context) {
 	if orderNo != "" {
 		query.Where("out_order_no LIKE ?", "%"+orderNo+"%")
 	}
+	orderStatus := ctx.Query("orderStatus")
+	if orderStatus != "" {
+		query.Where("order_status = ?", orderStatus)
+	}
 
 	var total int64
 	query.Count(&total)
@@ -61,5 +65,46 @@ func AdminCreateOrder(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
 		return
 	}
-	ctx.JSON(http.StatusOK, util.SuccessRespPackage(newOrder.OutOrderNo))
+	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"orderNo": newOrder.OutOrderNo}))
+}
+
+func ChangeOrderStatus(ctx *gin.Context) {
+	type changeStatus struct {
+		ID          int64 `json:"id" binding:"required"`
+		OrderStatus int   `json:"orderStatus" binding:"required"`
+	}
+
+	r := changeStatus{}
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		errorMsg := util.ValidatorError(err)
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(errorMsg))
+		return
+	}
+
+	orderModel := new(models.Order)
+	if !orderModel.ChangeStatusCheck(r.OrderStatus) {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage("订单状态值不正确"))
+		return
+	}
+
+	order, err := orderModel.GetByOrderId(r.ID)
+	if err != nil {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
+		return
+	}
+
+	if order == nil {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage("订单不存在"))
+		return
+	}
+
+	if order.OrderStatus == r.OrderStatus {
+		orderStatusText := order.GetOrderStatusText()
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(fmt.Sprintf("订单已经是【%s】状态", orderStatusText)))
+		return
+	}
+
+	order.ChangeOrderStatus(r.OrderStatus)
+	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"id": order.ID, "orderStatus": order.OrderStatus}))
+	return
 }

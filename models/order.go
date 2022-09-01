@@ -6,15 +6,24 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"gin/drivers"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const (
-	OrderStatusOfInit = 0
+	OrderStatusOfInit     = 0
+	OrderStatusOfPay      = 10
+	OrderStatusOfGot      = 20
+	OrderStatusOfDelivery = 30
 
 	// text
-	OrderStatusOfInitText = "创建"
+	OrderStatusOfInitText     = "创建"
+	OrderStatusOfPayText      = "已下单"
+	OrderStatusOfGotText      = "到货"
+	OrderStatusOfDeliveryText = "已发货"
 )
 
 const (
@@ -31,7 +40,10 @@ var orderTpIdToFlagMap map[int64]string = map[int64]string{
 	ThirdPartyOfAmz: ThirdPartyFlagOfAmz,
 }
 var statusToTextMap map[int64]string = map[int64]string{
-	OrderStatusOfInit: OrderStatusOfInitText,
+	OrderStatusOfInit:     OrderStatusOfInitText,
+	OrderStatusOfPay:      OrderStatusOfPayText,
+	OrderStatusOfGot:      OrderStatusOfGotText,
+	OrderStatusOfDelivery: OrderStatusOfDeliveryText,
 }
 
 type Order struct {
@@ -50,10 +62,11 @@ type OrderThumbnail []string
 type OrderFmtOutPut struct {
 	Order
 	ThirdPartyOrderFlag string       `json:"thirdPartyOrderFlag"`
-	OrderStatusText     string       `json:"order"`
+	OrderStatusText     string       `json:"orderStatusText"`
 	AddressInfo         OrderAddress `json:"addressInfo"`
 	CreatedTime         string       `json:"createdTime"`
 	Extra               string       `json:"extra"`
+	OperationBtn        []string     `json:"operationBtn"`
 }
 
 type OrderAddress struct {
@@ -76,6 +89,26 @@ func (Order) OutOrderNoExistsByThirdPartyId(outOrderNo string, thirdPartyId int6
 	_ls := []*Order{}
 	drivers.Mysql().Model(&Order{}).Where("out_order_no = ?", outOrderNo).Where("third_party_id", thirdPartyId).Find(&_ls)
 	return len(_ls) > 0
+}
+
+func (Order) GetByOutOrderNo(outOrderNo string, thirdPartyId int64) (*Order, error) {
+	one := &Order{}
+	if err := drivers.Mysql().Model(one).Where("out_order_no = ?", outOrderNo).Where("third_party_id", thirdPartyId).First(&one).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+	}
+	return one, nil
+}
+
+func (Order) GetByOrderId(orderId int64) (*Order, error) {
+	one := &Order{}
+	if err := drivers.Mysql().Model(one).Where("id = ?", orderId).First(&one).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+	}
+	return one, nil
 }
 
 func (Order) GetThirdPartyOrderIdByFlag(flag string) int64 {
@@ -108,16 +141,29 @@ func (Order) AddressCheck(address string) (bool, error) {
 	return true, nil
 }
 
+func (Order) ChangeStatusCheck(orderStatus int) bool {
+	if _, ok := statusToTextMap[int64(orderStatus)]; ok {
+		return true
+	}
+	return false
+}
+
 func (o Order) AddressFmt() OrderAddress {
 	return OrderAddress{}
 }
 
 func (o Order) RenderData() (*OrderFmtOutPut, error) {
-	fmt := OrderFmtOutPut{}
-	fmt.Order = o
-	fmt.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:04:05")
-	fmt.OrderStatusText = o.GetOrderStatusText()
-	fmt.ThirdPartyOrderFlag = o.GetThirdPartyFlag()
-	fmt.AddressInfo = o.AddressFmt()
-	return &fmt, nil
+	fmtOrder := OrderFmtOutPut{}
+	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:00:00")
+	fmtOrder.OrderStatusText = o.GetOrderStatusText()
+	fmtOrder.Thumbnail = o.Thumbnail
+	fmtOrder.ThirdPartyOrderFlag = o.GetThirdPartyFlag()
+	fmtOrder.AddressInfo = o.AddressFmt()
+	fmtOrder.Order = o
+	return &fmtOrder, nil
+}
+
+func (o *Order) ChangeOrderStatus(orderStatus int) {
+	o.OrderStatus = orderStatus
+	drivers.Mysql().Save(&o)
 }

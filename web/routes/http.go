@@ -47,6 +47,7 @@ func registerRoute() {
 		// 订单
 		admin.GET("/order/list", controller.OrderList)
 		admin.POST("/order/create", controller.AdminCreateOrder)
+		admin.POST("/order/change/status", controller.ChangeOrderStatus)
 	}
 
 	order := c.Group("/order").Use(middlewares.AdminAuth())
