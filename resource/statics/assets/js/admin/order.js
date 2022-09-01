@@ -11,6 +11,9 @@ function orderList() {
     if (request.orderNo != undefined) {
         params.push({"name": "orderNo", "value": request.orderNo});
     }
+    if (request.orderStatus != undefined) {
+        params.push({"name": "orderStatus", "value": request.orderStatus});
+    }
     if (request.page != undefined) {
         params.push({"name": "page", "value": request.page});
     } 

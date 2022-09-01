@@ -58,22 +58,22 @@
                         <div class="form-group">
                             <div class="input-group col-xs-12">
                                 <form method="get" class="input-group">
-                                    <input type="text" class="form-control" name="orderNo" placeholder="订单No">
-                                    <!-- <div class="col-md-3">
-                                        <input type="text" class="form-control" name="orderNo" placeholder="订单No">
-                                    </div>
                                     <div class="col-md-3">
                                         <input type="text" class="form-control" name="orderNo" placeholder="订单No">
                                     </div>
                                     <div class="col-md-3">
-                                        <input type="text" class="form-control" name="orderNo" placeholder="订单No">
+                                        <select class="form-control select" name="orderStatus" id="orderStatus">
+                                            <option value="null">订单状态</option>
+                                            <option value="0">创建</option>
+                                            <option value="10">已下单</option>
+                                            <option value="15">部分到货</option>
+                                            <option value="20">到货</option>
+                                            <option value="30">已发货</option>
+                                        </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control" name="orderNo" placeholder="订单No">
-                                    </div> -->
                                     <div class="float-right">
                                         <button type="submit" class="btn btn-sm btn-secondary">筛选</button>
-                                        <button type="button" class="btn btn-sm btn-default" onclick="javascrtpt:window.location.href='/admin/view/admin_order_list'">重置</button>
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="javascrtpt:window.location.href='/admin/view/admin_order_list'">重置</button>
                                     </div>
 
                                 </form>
