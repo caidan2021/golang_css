@@ -51,6 +51,8 @@ function orderList() {
                         orderStatusText = "<span class='mr-2'> <span class='badge-dot badge-primary'>";
                     } else if (item.orderStatus == 10) {
                         orderStatusText = "<span class='mr-2'> <span class='badge-dot badge-brand'>";
+                    } else if (item.orderStatus == 15) {
+                        orderStatusText = "<span class='mr-2'><span class='badge-dot  badge-secondary'>";
                     } else if (item.orderStatus == 20) {
                         orderStatusText = "<span class='mr-2'><span class='badge-dot  badge-secondary'>";
                     } else if (item.orderStatus == 30) {
@@ -76,7 +78,7 @@ function orderList() {
 
         });
         $(".order-list").append(html)
-        $(".dropdown-toggle").dropdown('toggle');
+        // $(".dropdown-toggle").dropdown('toggle');
         listPaginate(jsonResult.data.total)
     }).catch(function(error) {
         console.log(error);
