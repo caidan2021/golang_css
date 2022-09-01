@@ -65,7 +65,8 @@ function orderList() {
                     operationBtn = "<input type='button' class='btn btn-outline-success dropdown-toggle' data-toggle='dropdown' value='操作'>"
                     operationBtn += "<ul class='dropdown-menu'>"
                     operationBtn += "<li ><a class='btn btn-outline-secondary' href='javascript:changOrderStatus(" + item.id + "," + 10 + ")'>设为已下单</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 20 + ")'>设为到货</a></li>"
+                    operationBtn += "<li ><a class='btn btn-outline-secondary' href='javascript:changOrderStatus(" + item.id + "," + 15 + ")'>设为部分到货</a></li>"
+                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 20 + ")'>设为已到货</a></li>"
                     operationBtn += "<li ><a class='btn btn-outline-success' href='javascript:changOrderStatus(" + item.id + "," + 30 + ")'>设为已发货</a></li>"
                     operationBtn += "</ul>"
                     return operationBtn

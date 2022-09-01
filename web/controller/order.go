@@ -82,11 +82,6 @@ func ChangeOrderStatus(ctx *gin.Context) {
 	}
 
 	orderModel := new(models.Order)
-	if !orderModel.ChangeStatusCheck(r.OrderStatus) {
-		ctx.JSON(http.StatusOK, util.FailedRespPackage("订单状态值不正确"))
-		return
-	}
-
 	order, err := orderModel.GetByOrderId(r.ID)
 	if err != nil {
 		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
@@ -98,9 +93,8 @@ func ChangeOrderStatus(ctx *gin.Context) {
 		return
 	}
 
-	if order.OrderStatus == r.OrderStatus {
-		orderStatusText := order.GetOrderStatusText()
-		ctx.JSON(http.StatusOK, util.FailedRespPackage(fmt.Sprintf("订单已经是【%s】状态", orderStatusText)))
+	if ok, err := order.ChangeStatusCheck(r.OrderStatus); err != nil || !ok {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
 		return
 	}
 

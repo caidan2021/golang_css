@@ -713,3 +713,12 @@ func DistinctUint64(arg []uint64) []uint64 {
 	}
 	return tempArray
 }
+
+func IsContainInIntArr(arg []int, item interface{}) bool {
+	for _, eachItem := range arg {
+		if eachItem == item {
+			return true
+		}
+	}
+	return false
+}

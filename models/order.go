@@ -7,7 +7,9 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"gin/drivers"
+	"gin/util"
 	"time"
 
 	"gorm.io/gorm"
@@ -16,12 +18,14 @@ import (
 const (
 	OrderStatusOfInit     = 0
 	OrderStatusOfPay      = 10
+	OrderStatusOfGotPart  = 15
 	OrderStatusOfGot      = 20
 	OrderStatusOfDelivery = 30
 
 	// text
 	OrderStatusOfInitText     = "创建"
 	OrderStatusOfPayText      = "已下单"
+	OrderStatusOfGotPartText  = "部分到货"
 	OrderStatusOfGotText      = "到货"
 	OrderStatusOfDeliveryText = "已发货"
 )
@@ -42,6 +46,7 @@ var orderTpIdToFlagMap map[int64]string = map[int64]string{
 var statusToTextMap map[int64]string = map[int64]string{
 	OrderStatusOfInit:     OrderStatusOfInitText,
 	OrderStatusOfPay:      OrderStatusOfPayText,
+	OrderStatusOfGotPart:  OrderStatusOfGotPartText,
 	OrderStatusOfGot:      OrderStatusOfGotText,
 	OrderStatusOfDelivery: OrderStatusOfDeliveryText,
 }
@@ -125,8 +130,8 @@ func (o Order) GetThirdPartyFlag() string {
 	return "未知"
 }
 
-func (o Order) GetOrderStatusText() string {
-	if val, ok := statusToTextMap[int64(o.OrderStatus)]; ok {
+func (Order) GetOrderStatusText(orderStatus int) string {
+	if val, ok := statusToTextMap[int64(orderStatus)]; ok {
 		return val
 	}
 	return "未知"
@@ -141,11 +146,40 @@ func (Order) AddressCheck(address string) (bool, error) {
 	return true, nil
 }
 
-func (Order) ChangeStatusCheck(orderStatus int) bool {
-	if _, ok := statusToTextMap[int64(orderStatus)]; ok {
-		return true
+func (o Order) ChangeStatusCheck(orderStatus int) (bool, error) {
+	if _, ok := statusToTextMap[int64(orderStatus)]; !ok {
+		return false, fmt.Errorf("状态值不存在")
 	}
-	return false
+	changeStatusText := o.GetOrderStatusText(orderStatus)
+	if o.OrderStatus == orderStatus {
+		return false, fmt.Errorf(fmt.Sprintf("订单已经是【%s】状态", changeStatusText))
+	}
+
+	nextStatus, err := o.GetNextStatus(o.OrderStatus)
+	if err != nil {
+		return false, err
+	}
+	if ok := util.IsContainInIntArr(nextStatus, orderStatus); !ok {
+		return false, fmt.Errorf(fmt.Sprintf("不可更改为【%s】状态", changeStatusText))
+	}
+
+	return true, nil
+}
+
+func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
+	var rt []int
+	switch currentOrderStatus {
+	case OrderStatusOfInit:
+		return append(rt, OrderStatusOfPay), nil
+	case OrderStatusOfPay:
+		return append(rt, OrderStatusOfGotPart, OrderStatusOfGot), nil
+	case OrderStatusOfGotPart:
+		return append(rt, OrderStatusOfGot), nil
+	case OrderStatusOfGot:
+		return append(rt, OrderStatusOfDelivery), nil
+	default:
+		return nil, fmt.Errorf("当前订单状态不可更新")
+	}
 }
 
 func (o Order) AddressFmt() OrderAddress {
@@ -155,7 +189,7 @@ func (o Order) AddressFmt() OrderAddress {
 func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmtOrder := OrderFmtOutPut{}
 	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:00:00")
-	fmtOrder.OrderStatusText = o.GetOrderStatusText()
+	fmtOrder.OrderStatusText = o.GetOrderStatusText(o.OrderStatus)
 	fmtOrder.Thumbnail = o.Thumbnail
 	fmtOrder.ThirdPartyOrderFlag = o.GetThirdPartyFlag()
 	fmtOrder.AddressInfo = o.AddressFmt()
