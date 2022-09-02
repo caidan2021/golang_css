@@ -4,13 +4,11 @@
 package web
 
 import (
-	"gin/drivers"
 	"gin/service"
 	"gin/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type CreateItemRes struct {
@@ -33,24 +31,34 @@ func BatchCreateOrder(ctx *gin.Context) {
 	}
 
 	res := []*CreateItemRes{}
-	err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
-		for _, item := range r.Items {
-			itemRt := CreateItemRes{
-				OutOrderNo: item.OutOrderNo,
-				Rt:         true,
-			}
-			if _, err := service.CreateOrder(tx, item); err != nil {
-				itemRt.setCreateItemFailed(err.Error())
-			}
-			res = append(res, &itemRt)
+	for _, item := range r.Items {
+		itemRt := CreateItemRes{
+			OutOrderNo: item.OutOrderNo,
+			Rt:         true,
 		}
-		return nil
-	})
-
-	if err != nil {
-		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
-		return
+		if _, err := service.CreateOrder(item); err != nil {
+			itemRt.setCreateItemFailed(err.Error())
+		}
+		res = append(res, &itemRt)
 	}
+	// err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
+	// 	for _, item := range r.Items {
+	// 		itemRt := CreateItemRes{
+	// 			OutOrderNo: item.OutOrderNo,
+	// 			Rt:         true,
+	// 		}
+	// 		if _, err := service.CreateOrder(item); err != nil {
+	// 			itemRt.setCreateItemFailed(err.Error())
+	// 		}
+	// 		res = append(res, &itemRt)
+	// 	}
+	// 	return nil
+	// })
+
+	// if err != nil {
+	// 	ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
+	// 	return
+	// }
 
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"rt": res}))
 	return

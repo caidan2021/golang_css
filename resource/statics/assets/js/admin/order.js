@@ -32,8 +32,8 @@ function orderList() {
             return
         }
 
-        var html = "<thead><tr><th width='5%'>ID</th><th>封面</th><th width='10%'>订单No</th><th width='10%'>状态</th><th width='10%'>创建时间</th><th width='20%'>操作</th></tr></thead><tbody id='tbody'></tbody>"
-        var tr = "<tr><td>{id}</td><td>{thumbnail}</td><td>{outOrderNo}</td><td>{orderStatusText}</td><td>{createdTime}</td><td>{operationBtn}</td></tr>"
+        var html = "<thead><tr><th width='5%'>ID</th><th>封面</th><th width='15%'>订单No</th><th width='20%'>地址</th><th width='10%'>其他信息</th><th width='8%'>状态</th><th width='10%'>系统下单时间</th><th width='5%'>操作</th></tr></thead><tbody id='tbody'></tbody>"
+        var tr = "<tr><td>{id}</td><td>{thumbnail}</td><td>{outOrderNo}</td><td>{addressInfo}</td><td>{extra}</td><td>{orderStatusText}</td><td>{createdTime}</td><td>{operationBtn}</td></tr>"
 
         list = jsonResult.data.list
         $.each(list, function(index, item) {
@@ -64,6 +64,14 @@ function orderList() {
                         orderStatusText = "<span class='mr-2'>  <span class='badge-dot badge-light'>"
                     }
                     return orderStatusText += "</span>" + item.orderStatusText + "</span>"
+                }
+
+                if ($1 == 'extra' && item.extra) {
+                    var extra = ""
+                    for (i = 0; i < item.extra.length; i++) {
+                        extra += item.extra[i].name + ": " + item.extra[i].item
+                    }
+                    return extra;
                 }
 
                 if ($1 == 'operationBtn') {

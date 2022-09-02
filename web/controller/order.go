@@ -59,8 +59,7 @@ func AdminCreateOrder(ctx *gin.Context) {
 		return
 	}
 
-	tx := drivers.Mysql()
-	newOrder, err := service.CreateOrder(tx, r)
+	newOrder, err := service.CreateOrder(r)
 	if err != nil {
 		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
 		return

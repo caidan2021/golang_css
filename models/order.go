@@ -57,8 +57,7 @@ type Order struct {
 	OutOrderNo   string         `json:"outOrderNo" binding:"required"`
 	OrderStatus  int            `gorm:"default:0" json:"orderStatus"`
 	Thumbnail    OrderThumbnail `json:"thumbnail"`
-	AddressInfo  string         `json:"addressInfo"`
-	Extra        string         `json:"extra"`
+
 	UnixModelTimeWithDel
 }
 
@@ -66,15 +65,11 @@ type OrderThumbnail []string
 
 type OrderFmtOutPut struct {
 	Order
-	ThirdPartyOrderFlag string       `json:"thirdPartyOrderFlag"`
-	OrderStatusText     string       `json:"orderStatusText"`
-	AddressInfo         OrderAddress `json:"addressInfo"`
-	CreatedTime         string       `json:"createdTime"`
-	Extra               string       `json:"extra"`
-	OperationBtn        []string     `json:"operationBtn"`
-}
-
-type OrderAddress struct {
+	ThirdPartyOrderFlag string      `json:"thirdPartyOrderFlag"`
+	OrderStatusText     string      `json:"orderStatusText"`
+	AddressInfo         interface{} `json:"addressInfo"`
+	CreatedTime         string      `json:"createdTime"`
+	Extra               interface{} `json:"extra"`
 }
 
 func (Order) TableName() string {
@@ -137,13 +132,60 @@ func (Order) GetOrderStatusText(orderStatus int) string {
 	return "未知"
 }
 
-func (Order) AddressCheck(address string) (bool, error) {
-	return true, nil
-	addressTmpl := &OrderAddress{}
-	if err := json.Unmarshal([]byte(address), &addressTmpl); err != nil {
-		return false, err
+func (o Order) GetOrderAddress() interface{} {
+
+	orderAddress, _ := OrderAddress{}.GetByOrderId(o.ID)
+	if orderAddress == nil {
+		return ""
 	}
-	return true, nil
+
+	// 亚马逊的订单地址
+	if o.IsAmzOrder() {
+		return orderAddress.RenderAmzOrderAddress()
+	}
+	return ""
+}
+
+func (o Order) GetOrderExtend() interface{} {
+	orderExtend, _ := OrderExtend{}.GetByOrderId(o.ID)
+	if orderExtend == nil {
+		return nil
+	}
+	return orderExtend.RenderOrderExtend()
+}
+
+func (o Order) IsAmzOrder() bool {
+	return o.ThirdPartyID == ThirdPartyOfAmz
+}
+
+func (o Order) NewOrderAddress(address interface{}) (*OrderAddress, error) {
+	newOrderAddress := OrderAddress{
+		OrderId: o.ID,
+	}
+	if o.IsAmzOrder() {
+		if err := newOrderAddress.FmtAmzOrderAddress(fmt.Sprintf("%v", address)); err != nil {
+			return nil, fmt.Errorf("createOrderAddress fmt amz order address failed: %v", err)
+		}
+		return &newOrderAddress, nil
+	}
+	return nil, fmt.Errorf("can't create order address")
+}
+
+func (o Order) NewOrderExtend(extend []ExtendFmtItem) (*OrderExtend, error) {
+	newOrderExtend := OrderExtend{
+		OrderId: o.ID,
+	}
+	if o.IsAmzOrder() {
+		if extend == nil {
+			return nil, nil
+		}
+		if err := newOrderExtend.FmtOrderExtend(extend); err != nil {
+			return nil, fmt.Errorf("createOrderExtend fmt amz order extend failed: %v", err)
+		}
+		return &newOrderExtend, nil
+	}
+	return nil, nil
+
 }
 
 func (o Order) ChangeStatusCheck(orderStatus int) (bool, error) {
@@ -182,17 +224,14 @@ func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
 	}
 }
 
-func (o Order) AddressFmt() OrderAddress {
-	return OrderAddress{}
-}
-
 func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmtOrder := OrderFmtOutPut{}
 	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:00:00")
 	fmtOrder.OrderStatusText = o.GetOrderStatusText(o.OrderStatus)
 	fmtOrder.Thumbnail = o.Thumbnail
 	fmtOrder.ThirdPartyOrderFlag = o.GetThirdPartyFlag()
-	fmtOrder.AddressInfo = o.AddressFmt()
+	fmtOrder.AddressInfo = o.GetOrderAddress()
+	fmtOrder.Extra = o.GetOrderExtend()
 	fmtOrder.Order = o
 	return &fmtOrder, nil
 }
