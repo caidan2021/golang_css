@@ -65,11 +65,12 @@ type OrderThumbnail []string
 
 type OrderFmtOutPut struct {
 	Order
-	ThirdPartyOrderFlag string      `json:"thirdPartyOrderFlag"`
-	OrderStatusText     string      `json:"orderStatusText"`
-	AddressInfo         interface{} `json:"addressInfo"`
-	CreatedTime         string      `json:"createdTime"`
-	Extra               interface{} `json:"extra"`
+	ThirdPartyOrderFlag string          `json:"thirdPartyOrderFlag"`
+	OrderStatusText     string          `json:"orderStatusText"`
+	AddressInfo         interface{}     `json:"addressInfo"`
+	CreatedTime         string          `json:"createdTime"`
+	ProductItems        []*OrderProduct `json:"productItems"`
+	Extra               interface{}     `json:"extra"`
 }
 
 func (Order) TableName() string {
@@ -233,6 +234,7 @@ func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmtOrder.AddressInfo = o.GetOrderAddress()
 	fmtOrder.Extra = o.GetOrderExtend()
 	fmtOrder.Order = o
+	fmtOrder.ProductItems = OrderProduct{}.GetByOrderId(o.ID)
 	return &fmtOrder, nil
 }
 

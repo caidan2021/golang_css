@@ -71,7 +71,7 @@ function orderList() {
                     for (i = 0; i < item.extra.length; i++) {
                         extra += item.extra[i].name + ": " + item.extra[i].item
                     }
-                    return extra;
+                    return extra ?? "";
                 }
 
                 if ($1 == 'operationBtn') {

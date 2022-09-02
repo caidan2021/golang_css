@@ -13,7 +13,7 @@ import (
 
 type OrderAddress struct {
 	ID        int64  `json:"id"`
-	OrderId   int64  `json:"orderId" binding:"Required"`
+	OrderId   int64  `json:"orderId" binding:"required"`
 	Country   string `json:"country"`
 	Province  string `json:"province"`
 	City      string `json:"city"`
@@ -26,12 +26,12 @@ type OrderAddress struct {
 	UnixModelTimeWithDel
 }
 
-type AmzAddress struct {
-	Address string `json:"address"`
-}
-
 func (OrderAddress) TableName() string {
 	return "css_order_address"
+}
+
+type AmzAddress struct {
+	Address string `json:"address"`
 }
 
 func (OrderAddress) GetByOrderId(orderId int64) (*OrderAddress, error) {

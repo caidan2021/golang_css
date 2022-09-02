@@ -13,7 +13,7 @@ import (
 
 type OrderExtend struct {
 	ID      int64  `json:"id"`
-	OrderId int64  `json:"orderId" binding:"Required"`
+	OrderId int64  `json:"orderId" binding:"required"`
 	Extra   string `json:"extra"`
 	UnixModelTimeWithDel
 }
@@ -23,8 +23,8 @@ func (OrderExtend) TableName() string {
 }
 
 type ExtendFmtItem struct {
-	Name string `json:"name" binding:"Required"`
-	Item string `json:"item" binding:"Required"`
+	Name string `json:"name" binding:"required"`
+	Item string `json:"item" binding:"required"`
 }
 
 func (OrderExtend) GetByOrderId(orderId int64) (*OrderExtend, error) {

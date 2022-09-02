@@ -12,10 +12,11 @@ import (
 )
 
 type OrderCreateItem struct {
-	ThirdPartyFlag string                 `json:"thirdPartyFlag" bing:"required"`
-	OutOrderNo     string                 `json:"outOrderNo" bing:"required"`
+	ThirdPartyFlag string                 `json:"thirdPartyFlag" binding:"required"`
+	OutOrderNo     string                 `json:"outOrderNo" binding:"required"`
 	Thumbnails     *models.OrderThumbnail `json:"thumbnails"`
 	AddressInfo    string                 `json:"addressInfo"`
+	ProductItems   []models.OrderProduct  `json:"productItems"`
 	Extra          []models.ExtendFmtItem `json:"extra"`
 }
 
@@ -43,6 +44,10 @@ func CreateOrder(item OrderCreateItem) (*models.Order, error) {
 		}
 
 		// 创建订单log
+		newOrderHistory := models.OrderHistory{}.NewOrderHistory(newOrder.ID, 1, models.HistoryTypeOfOrderCreate, "")
+		if err := tx.Create(&newOrderHistory).Error; err != nil {
+			return fmt.Errorf("createOrderHistory failed: %s", err)
+		}
 
 		// 创建订单扩展
 		newOrderExtend, err := newOrder.NewOrderExtend(item.Extra)
@@ -68,6 +73,12 @@ func CreateOrder(item OrderCreateItem) (*models.Order, error) {
 		}
 
 		// 创建订单商品信息
+		for _, productItem := range item.ProductItems {
+			newOrderProduct := models.OrderProduct{}.NewOrderProduct(newOrder.ID, productItem.ProductId, productItem.SkuId, productItem.TotalCount)
+			if err := tx.Create(&newOrderProduct).Error; err != nil {
+				return fmt.Errorf("createOrderProduct failed: %v", err)
+			}
+		}
 
 		return nil
 
