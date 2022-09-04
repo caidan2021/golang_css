@@ -12,6 +12,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func OrderList(ctx *gin.Context) {
@@ -80,24 +81,37 @@ func ChangeOrderStatus(ctx *gin.Context) {
 		return
 	}
 
-	orderModel := new(models.Order)
-	order, err := orderModel.GetByOrderId(r.ID)
+	order, err := models.Order{}.GetByOrderId(r.ID)
 	if err != nil {
 		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
 		return
 	}
 
-	if order == nil {
-		ctx.JSON(http.StatusOK, util.FailedRespPackage("订单不存在"))
-		return
-	}
+	if err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
+		if order == nil {
+			return fmt.Errorf("订单不存在")
+		}
+		if ok, err := order.ChangeStatusCheck(r.OrderStatus); err != nil || !ok {
+			return fmt.Errorf(err.Error())
+		}
+		order.OrderStatus = r.OrderStatus
 
-	if ok, err := order.ChangeStatusCheck(r.OrderStatus); err != nil || !ok {
+		if err := tx.Save(&order).Error; err != nil {
+			return fmt.Errorf(err.Error())
+		}
+		// 创建订单历史
+		if event := order.GetOrderHistoryEvent(r.OrderStatus); event != "" {
+			newOrderHistory := models.OrderHistory{}.NewOrderHistory(order.ID, 1, event, "")
+			if err := tx.Create(&newOrderHistory).Error; err != nil {
+				return fmt.Errorf("createOrderHistory failed: %s", err)
+			}
+		}
+
+		return nil
+
+	}); err != nil {
 		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
 		return
 	}
-
-	order.ChangeOrderStatus(r.OrderStatus)
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"id": order.ID, "orderStatus": order.OrderStatus}))
-	return
 }

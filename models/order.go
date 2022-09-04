@@ -133,6 +133,22 @@ func (Order) GetOrderStatusText(orderStatus int) string {
 	return "未知"
 }
 
+func (Order) GetOrderHistoryEvent(orderStatus int) string {
+	switch orderStatus {
+	case OrderStatusOfPay:
+		return HistoryTypeOfOrderDispatch
+	case OrderStatusOfGotPart:
+		return HistoryTypeOfOrderGotPart
+	case OrderStatusOfGot:
+		return HistoryTypeOfOrderGot
+	case OrderStatusOfDelivery:
+		return HistoryTypeOfOrderDelivery
+	default:
+		return ""
+	}
+
+}
+
 func (o Order) GetOrderAddress() interface{} {
 
 	orderAddress, _ := OrderAddress{}.GetByOrderId(o.ID)
@@ -236,9 +252,4 @@ func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmtOrder.Order = o
 	fmtOrder.ProductItems = OrderProduct{}.GetByOrderId(o.ID)
 	return &fmtOrder, nil
-}
-
-func (o *Order) ChangeOrderStatus(orderStatus int) {
-	o.OrderStatus = orderStatus
-	drivers.Mysql().Save(&o)
 }

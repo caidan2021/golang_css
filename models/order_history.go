@@ -27,11 +27,11 @@ func (OrderHistory) TableName() string {
 }
 
 func (OrderHistory) NewOrderHistory(orderId, actionUserId int64, event, remark string) *OrderHistory {
-	NewOrderHistory := OrderHistory{
-		ID:         orderId,
+	newOrderHistory := OrderHistory{
+		OrderId:    orderId,
 		ActionUser: actionUserId,
 		Event:      event,
 		Remark:     remark,
 	}
-	return &NewOrderHistory
+	return &newOrderHistory
 }
