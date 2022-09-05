@@ -66,12 +66,14 @@ function orderList() {
                     return orderStatusText += "</span>" + item.orderStatusText + "</span>"
                 }
 
-                if ($1 == 'extra' && item.extra) {
+                if ($1 == 'extra') {
                     var extra = ""
                     for (i = 0; i < item.extra.length; i++) {
                         extra += item.extra[i].name + ": " + item.extra[i].item
                     }
-                    return extra ?? "";
+                    if (extra != "") {
+                        return extra
+                    }
                 }
 
                 if ($1 == 'operationBtn') {
@@ -140,16 +142,24 @@ function editExtraForm(order)
 function editExtra()
 {
     url = "/admin/order/edit/extra";
+    body = {}
+    if ($("#orderExtend").val()) {
+        body.orderExtra = JSON.parse($("#orderExtend").val());
+    } 
+    if ($("#orderAddressExtra").val()) {
+        body.addressExtra = $("#orderAddressExtra").val();
+    }
+    if (!body.orderExtra && !body.addressExtra) {
+        alert("请不要提交空信息")
+        return 
+    }
+    body.orderId = parseInt($("#exitExtraOrderId").val());
     options = {
         method: 'post',
         headers: {
             "Content-Type": "application/json charset=utf-8",
         },
-        body: JSON.stringify({
-            "orderId": parseInt($("#exitExtraOrderId").val()),
-            "orderExtra": JSON.parse($("#orderExtend").val()),
-            "addressExtra": $("#orderAddressExtra").val(),
-        })
+        body: JSON.stringify(body)
     }
     console.log(options.body)
     commonFetch(url, options).then(function (jsonResult) {
