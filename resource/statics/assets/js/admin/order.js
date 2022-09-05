@@ -67,13 +67,7 @@ function orderList() {
                 }
 
                 if ($1 == 'extra') {
-                    var extra = ""
-                    for (i = 0; i < item.extra.length; i++) {
-                        extra += item.extra[i].name + ": " + item.extra[i].item
-                    }
-                    if (extra != "") {
-                        return extra
-                    }
+                    return JSON.stringify(item.extra)
                 }
 
                 if ($1 == 'operationBtn') {
