@@ -77,10 +77,11 @@ function orderList() {
                 if ($1 == 'operationBtn') {
                     operationBtn = "<input type='button' class='btn btn-outline-success dropdown-toggle' data-toggle='dropdown' value='操作'>"
                     operationBtn += "<ul class='dropdown-menu'>"
-                    operationBtn += "<li ><a class='btn btn-outline-secondary' href='javascript:changOrderStatus(" + item.id + "," + 10 + ")'>设为已下单</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-secondary' href='javascript:changOrderStatus(" + item.id + "," + 15 + ")'>设为部分到货</a></li>"
+                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 10 + ")'>设为已下单</a></li>"
+                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 15 + ")'>设为部分到货</a></li>"
                     operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 20 + ")'>设为已到货</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-success' href='javascript:changOrderStatus(" + item.id + "," + 30 + ")'>设为已发货</a></li>"
+                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 30 + ")'>设为已发货</a></li>"
+                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:editExtraForm(" + JSON.stringify(item).replace(/\”/g,"'") + ")'>编辑</a></li>"
                     operationBtn += "</ul>"
                     return operationBtn
                 }
@@ -125,9 +126,44 @@ function createOrder()
 
 }
 
+function editExtraForm(order)
+{
+    idHtml = "<input type='hidden' id='exitExtraOrderId' name='orderId' value='" + order.id + "'>"
+
+    $("#orderAddressExtra").html(order.addressInfo);
+    $("#orderExtend").html(JSON.stringify(order.extra));
+
+    $("#edit-extra").modal("show")
+    $("#form-hidden-items").append(idHtml)
+}
+
+function editExtra()
+{
+    url = "/admin/order/edit/extra";
+    options = {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json charset=utf-8",
+        },
+        body: JSON.stringify({
+            "orderId": parseInt($("#exitExtraOrderId").val()),
+            "orderExtra": JSON.parse($("#orderExtend").val()),
+            "addressExtra": $("#orderAddressExtra").val(),
+        })
+    }
+    console.log(options.body)
+    commonFetch(url, options).then(function (jsonResult) {
+        if (jsonResult.code != 0) {
+            alert("修改订单扩展失败, err: " + jsonResult.msg)
+            return
+        }
+        location.reload()
+    })
+
+}
+
 function changOrderStatus(orderId, orderStatus)
 {
-    console.log(orderId,orderStatus)
     url = "/admin/order/change/status";
     options = {
         method: 'post',

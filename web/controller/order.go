@@ -4,6 +4,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"gin/drivers"
 	"gin/models"
@@ -114,4 +115,88 @@ func ChangeOrderStatus(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"id": order.ID, "orderStatus": order.OrderStatus}))
+}
+
+func EditOrderExtra(ctx *gin.Context) {
+	type orderExtra struct {
+		OrderId      int64                  `json:"orderId" binding:"required"`
+		AddressExtra string                 `json:"addressExtra"`
+		OrderExtra   []models.ExtendFmtItem `json:"orderExtra" binding:"required"`
+	}
+	r := orderExtra{}
+	if err := ctx.ShouldBindJSON(&r); err != nil {
+		errorMsg := util.ValidatorError(err)
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(errorMsg))
+		return
+	}
+	fmt.Println("===================================", r)
+
+	order, err := models.Order{}.GetByOrderId(r.OrderId)
+	if err != nil {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
+		return
+	}
+	if err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
+		orderAddress, err := models.OrderAddress{}.GetByOrderId(r.OrderId)
+		if err != nil {
+			return fmt.Errorf(err.Error())
+		}
+
+		if orderAddress == nil {
+			newOrderAddress, err := order.NewOrderAddress(r.AddressExtra)
+			if err != nil {
+				return fmt.Errorf(err.Error())
+			}
+			if newOrderAddress == nil {
+				return fmt.Errorf("new order address got error")
+			}
+			if err := tx.Create(&newOrderAddress).Error; err != nil {
+				return fmt.Errorf("create new order address failed: %s", err)
+			}
+			orderAddress = newOrderAddress
+		}
+		if order.IsAmzOrder() {
+			if err := orderAddress.FmtAmzOrderAddress(fmt.Sprintf("%v", r.AddressExtra)); err != nil {
+				return fmt.Errorf(err.Error())
+			}
+		}
+		if err := tx.Save(&orderAddress).Error; err != nil {
+			return fmt.Errorf("update order address failed: %s", err)
+		}
+
+		orderExtend, err := models.OrderExtend{}.GetByOrderId(r.OrderId)
+		if err != nil {
+			return fmt.Errorf(err.Error())
+		}
+
+		if orderExtend == nil {
+			newOrderExtend, err := order.NewOrderExtend(r.OrderExtra)
+			if err != nil {
+				return fmt.Errorf(err.Error())
+			}
+			if newOrderExtend == nil {
+				return fmt.Errorf("new order extend got error")
+			}
+			if err := tx.Create(&newOrderExtend).Error; err != nil {
+				return fmt.Errorf("create new order extend failed: %s", err)
+			}
+			orderExtend = newOrderExtend
+		}
+		ext, err := json.Marshal(r.OrderExtra)
+		if err != nil {
+			return err
+		}
+		orderExtend.Extra = string(ext)
+		orderAddress.Extra = r.AddressExtra
+		if err := tx.Save(&orderExtend).Error; err != nil {
+			return fmt.Errorf("update order extend failed: %s", err)
+		}
+
+		return nil
+
+	}); err != nil {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
+		return
+	}
+	ctx.JSON(http.StatusOK, util.SuccessRespPackage(true))
 }

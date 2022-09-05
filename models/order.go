@@ -149,7 +149,7 @@ func (Order) GetOrderHistoryEvent(orderStatus int) string {
 
 }
 
-func (o Order) GetOrderAddress() interface{} {
+func (o Order) GetOrderFmtAddress() interface{} {
 
 	orderAddress, _ := OrderAddress{}.GetByOrderId(o.ID)
 	if orderAddress == nil {
@@ -163,7 +163,7 @@ func (o Order) GetOrderAddress() interface{} {
 	return ""
 }
 
-func (o Order) GetOrderExtend() interface{} {
+func (o Order) GetOrderFmtExtend() interface{} {
 	orderExtend, _ := OrderExtend{}.GetByOrderId(o.ID)
 	if orderExtend == nil {
 		return nil
@@ -247,8 +247,8 @@ func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmtOrder.OrderStatusText = o.GetOrderStatusText(o.OrderStatus)
 	fmtOrder.Thumbnail = o.Thumbnail
 	fmtOrder.ThirdPartyOrderFlag = o.GetThirdPartyFlag()
-	fmtOrder.AddressInfo = o.GetOrderAddress()
-	fmtOrder.Extra = o.GetOrderExtend()
+	fmtOrder.AddressInfo = o.GetOrderFmtAddress()
+	fmtOrder.Extra = o.GetOrderFmtExtend()
 	fmtOrder.Order = o
 	fmtOrder.ProductItems = OrderProduct{}.GetByOrderId(o.ID)
 	return &fmtOrder, nil
