@@ -77,7 +77,15 @@ func LoginAdmin(ctx *gin.Context) {
 		return
 	}
 	ctx.SetCookie("css-token", adminUser.RememberToken, 86400*14, "/", util.Config.Demon, false, false)
-	ctx.JSON(http.StatusOK, util.SuccessRespPackage(adminUser))
+
+	rt := models.AdminRender{
+		ID:    adminUser.ID,
+		Name:  adminUser.Name,
+		Email: adminUser.Email,
+		Token: adminUser.RememberToken,
+	}
+
+	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"currentUser": rt}))
 	return
 }
 
@@ -89,9 +97,4 @@ func Current(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"currentUser": admin}))
 
-}
-
-func Test(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"test": "test"}))
-	return
 }

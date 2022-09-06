@@ -37,6 +37,7 @@ type AdminRender struct {
 	ID     int64  `json:"id" binding:"required"`
 	Name   string `json:"name" binding:"required"`
 	Email  string `json:"email" binding:"required"`
+	Token  string `json:"token" binding:"required"`
 	Avatar string `json:"avatar"`
 }
 
@@ -62,6 +63,7 @@ func GetAdminUserByToken(token string) (*AdminRender, error) {
 		ID:     _one.ID,
 		Name:   _one.Name,
 		Email:  _one.Email,
+		Token:  _one.RememberToken,
 		Avatar: "http://106.52.60.167:10000/img/d499e0802de482a069c071c15439fdbb_caidan.png",
 	}
 	return rt, nil

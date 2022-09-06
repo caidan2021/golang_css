@@ -37,7 +37,6 @@ func registerRoute() {
 
 	// 用户登陆
 	c.POST("/admin/user/login", controller.LoginAdmin)
-	c.GET("admin/test", controller.Test)
 
 	admin := c.Group("/admin").Use(middlewares.AdminAuth())
 	{

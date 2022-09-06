@@ -22,9 +22,10 @@ function commonFetch(url, options) {
     return fetch(url, options).then(function(response) {
         if (response.status == 403) {
             location.href = "/admin/view/admin_login"
-            return
         }
         return response.json();
+    // }).catch(function(error) {
+    //     console.log(error.message)
     })
 }
 

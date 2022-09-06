@@ -73,8 +73,6 @@ function currentUser()
         $("#currentUserName").html(jsonResult.data.currentUser.name)
         $("#currentUserAvatar").attr("src", jsonResult.data.currentUser.avatar)
         return
-    }).catch(function(error) {
-        alert("获取用户失败, err: " + error.message);
     });
 
 }
