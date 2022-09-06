@@ -31,6 +31,15 @@ func (AdminUser) TableName() string {
 	return "css_admin_user"
 }
 
+const AdminUserKey = "caiseshi_admin_user"
+
+type AdminRender struct {
+	ID     int64  `json:"id" binding:"required"`
+	Name   string `json:"name" binding:"required"`
+	Email  string `json:"email" binding:"required"`
+	Avatar string `json:"avatar"`
+}
+
 func GetAdminUserByNameAndPw(name, pw string) (*AdminUser, error) {
 	_one := &AdminUser{}
 	if err := drivers.Mysql().Model(&AdminUser{}).Where("name = ?", name).Where("password = ?", _one.EncryptionPw(pw)).First(&_one).Error; err != nil {
@@ -41,14 +50,21 @@ func GetAdminUserByNameAndPw(name, pw string) (*AdminUser, error) {
 	return _one, nil
 }
 
-func GetAdminUserByToken(token string) (*AdminUser, error) {
+func GetAdminUserByToken(token string) (*AdminRender, error) {
 	_one := &AdminUser{}
+	fmt.Println("GetAdminUserByTokenGetAdminUserByTokenGetAdminUserByTokenGetAdminUserByToken", token)
 	if err := drivers.Mysql().Model(&AdminUser{}).Where("remember_token = ?", token).First(&_one).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 	}
-	return _one, nil
+	rt := &AdminRender{
+		ID:     _one.ID,
+		Name:   _one.Name,
+		Email:  _one.Email,
+		Avatar: "http://106.52.60.167:10000/img/d499e0802de482a069c071c15439fdbb_caidan.png",
+	}
+	return rt, nil
 }
 
 func (AdminUser) NameExists(name string, id int64) bool {
@@ -68,17 +84,20 @@ func (AdminUser) EncryptionPw(password string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func (a *AdminUser) UpdateRememberMe(rememberMe bool) {
+func (a *AdminUser) UpdateRememberMe(rememberMe bool) error {
 	if rememberMe {
 		newToken, err := GenerateToken(a.Name)
 		if err != nil {
-			return
+			return err
 		}
 		a.RememberToken = newToken
 	} else {
 		a.RememberToken = ""
 	}
-	drivers.Mysql().Save(&a)
+	if err := drivers.Mysql().Save(&a).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 type Claims struct {
@@ -115,7 +134,6 @@ func ParseToken(token string) (*Claims, error) {
 			return claims, nil
 		}
 	}
-	fmt.Println("-=====")
 
 	return nil, err
 }

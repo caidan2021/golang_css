@@ -18,7 +18,7 @@ func AdminAuth() gin.HandlerFunc {
 		password := ctx.Request.Header.Get("Css-password")
 		if userName != "" || password != "" {
 			if admin, _ := models.GetAdminUserByNameAndPw(userName, password); admin != nil {
-				ctx.Set(util.AdminUserKey, admin)
+				ctx.Set(models.AdminUserKey, admin)
 				ctx.Next()
 				return
 			}
@@ -46,11 +46,12 @@ func AdminAuth() gin.HandlerFunc {
 			return
 		}
 		admin, _ := models.GetAdminUserByToken(token)
-		if admin != nil {
+
+		if admin == nil {
 			ctx.AbortWithStatusJSON(403, util.FailedRespPackage("请登陆"))
 			return
 		}
-		ctx.Set(util.AdminUserKey, admin)
+		ctx.Set(models.AdminUserKey, admin)
 		ctx.Next()
 	}
 }

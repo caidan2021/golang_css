@@ -43,6 +43,7 @@ func registerRoute() {
 	{
 		// 创建用户
 		admin.POST("/user/add", controller.AddAdminUser)
+		admin.GET("/user/current", controller.Current)
 
 		// 订单
 		admin.GET("/order/list", controller.OrderList)

@@ -72,11 +72,23 @@ func LoginAdmin(ctx *gin.Context) {
 		return
 	}
 
-	adminUser.UpdateRememberMe(r.RememberMe)
+	if err := adminUser.UpdateRememberMe(r.RememberMe); err != nil {
+		ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
+		return
+	}
 	ctx.SetCookie("css-token", adminUser.RememberToken, 86400*14, "/", util.Config.Demon, false, false)
-
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(adminUser))
 	return
+}
+
+func Current(ctx *gin.Context) {
+	admin, ok := ctx.Get(models.AdminUserKey)
+	if !ok {
+		ctx.JSON(http.StatusOK, util.SuccessRespPackage(true))
+	}
+
+	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"currentUser": admin}))
+
 }
 
 func Test(ctx *gin.Context) {

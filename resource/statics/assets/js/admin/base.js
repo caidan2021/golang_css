@@ -1,10 +1,12 @@
+/*
+ * @Date: 2022-09-05 21:01:06
+ */
 
 document.write('<script src="/statics/assets/vendor/jquery/jquery-3.3.1.min.js"></script>')
 
 //popper.js必须在bootstrap.js之前引用进来，否则报错的
-// document.write('<script src="https://cdn.bootcss.com/popper.js/1.14.7/umd/popper.min.js"></script>')
 document.write('<script src="/statics/assets/vendor/bootstrap/js/popper.min.js"></script>')
-document.write('<script src="/statics/assets/vendor/bootstrap/js/bootstrap.bundle.js"></script>')
+document.write('<script src="/statics/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>')
 document.write('<script src="/statics/assets/vendor/bootstrap/js/bootstrap.min.js"></script>')
 document.write('<script src="/statics/assets/vendor/bootstrap/js/fileinput.min.js"></script>')
 
