@@ -41,24 +41,6 @@ func BatchCreateOrder(ctx *gin.Context) {
 		}
 		res = append(res, &itemRt)
 	}
-	// err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
-	// 	for _, item := range r.Items {
-	// 		itemRt := CreateItemRes{
-	// 			OutOrderNo: item.OutOrderNo,
-	// 			Rt:         true,
-	// 		}
-	// 		if _, err := service.CreateOrder(item); err != nil {
-	// 			itemRt.setCreateItemFailed(err.Error())
-	// 		}
-	// 		res = append(res, &itemRt)
-	// 	}
-	// 	return nil
-	// })
-
-	// if err != nil {
-	// 	ctx.JSON(http.StatusOK, util.FailedRespPackage(err.Error()))
-	// 	return
-	// }
 
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"rt": res}))
 	return

@@ -44,6 +44,8 @@ func registerRoute() {
 		admin.POST("/user/add", controller.AddAdminUser)
 		admin.GET("/user/current", controller.Current)
 
+		admin.GET("/common/mate/index", controller.CommonMate)
+
 		// 订单
 		admin.GET("/order/list", controller.OrderList)
 		admin.POST("/order/create", controller.AdminCreateOrder)

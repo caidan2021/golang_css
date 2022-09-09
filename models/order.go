@@ -112,6 +112,10 @@ func (Order) GetByOrderId(orderId int64) (*Order, error) {
 	return one, nil
 }
 
+func (Order) GetOrderStatusTextMap() map[int64]string {
+	return statusToTextMap
+}
+
 func (Order) GetThirdPartyOrderIdByFlag(flag string) int64 {
 	if val, ok := orderFlagToTpIdMap[flag]; ok {
 		return val
@@ -243,7 +247,7 @@ func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
 
 func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmtOrder := OrderFmtOutPut{}
-	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:00:00")
+	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 08:09:10")
 	fmtOrder.OrderStatusText = o.GetOrderStatusText(o.OrderStatus)
 	fmtOrder.Thumbnail = o.Thumbnail
 	fmtOrder.ThirdPartyOrderFlag = o.GetThirdPartyFlag()
