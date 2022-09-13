@@ -170,7 +170,7 @@ func (o Order) GetOrderFmtAddress() interface{} {
 func (o Order) GetOrderFmtExtend() interface{} {
 	orderExtend, _ := OrderExtend{}.GetByOrderId(o.ID)
 	if orderExtend == nil {
-		return nil
+		return ""
 	}
 	return orderExtend.RenderOrderExtend()
 }

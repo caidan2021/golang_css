@@ -5,7 +5,6 @@ package routes
 
 import (
 	"gin/util"
-	"gin/web"
 	"gin/web/controller"
 	"gin/web/middlewares"
 	"io/ioutil"
@@ -14,21 +13,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var c *gin.Engine
+func AdminRegisterRoute(c *gin.Engine) {
 
-func HttpRun() {
-	c = gin.New()
 	// 加载资源
 	loadResource()
-
-	// 路由注册
-	registerRoute()
-
-	// 启动http服务
-	c.Run(util.Config.HttpAddr)
-}
-
-func registerRoute() {
 
 	c.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, util.SuccessRespPackage("pong"))
@@ -45,6 +33,8 @@ func registerRoute() {
 		admin.GET("/user/current", controller.Current)
 
 		admin.GET("/common/mate/index", controller.CommonMate)
+		admin.GET("/init", controller.Init)
+		admin.GET("/menu", controller.AdminMenu)
 
 		// 订单
 		admin.GET("/order/list", controller.OrderList)
@@ -53,23 +43,6 @@ func registerRoute() {
 		admin.POST("/order/edit/extra", controller.EditOrderExtra)
 	}
 
-	order := c.Group("/order").Use(middlewares.AdminAuth())
-	{
-		order.POST("/create/batch", web.BatchCreateOrder)
-	}
-
-	tools := c.Group("/tools").Use(middlewares.AdminAuth())
-	{
-		tools.POST("/file/upload", web.Upload)
-	}
-
-	img := c.Group("/img")
-	{
-		img.GET("/:imgName", web.ShowImage)
-	}
-
-	// 视图路由
-	ResourceRegisterRoute(c)
 }
 
 func loadResource() {

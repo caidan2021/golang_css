@@ -4,7 +4,7 @@
 package routes
 
 import (
-	"gin/web"
+	"gin/web/controller"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,6 +12,6 @@ import (
 func ResourceRegisterRoute(c *gin.Engine) {
 	admin := c.Group("/admin/view/")
 	{
-		admin.GET("/:pageName", web.Handler)
+		admin.GET("/:pageName", controller.Handler)
 	}
 }

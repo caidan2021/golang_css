@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-08-20 17:25:36
  */
-package web
+package controller
 
 import (
 	"net/http"

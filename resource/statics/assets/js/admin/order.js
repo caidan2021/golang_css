@@ -66,7 +66,7 @@ function orderList() {
                     return orderStatusText += "</span>" + item.orderStatusText + "</span>"
                 }
 
-                if ($1 == 'extra') {
+                if ($1 == 'extra' && !!item.extra && item.extra.length > 0) {
                     return JSON.stringify(item.extra)
                 }
 

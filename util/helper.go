@@ -17,6 +17,10 @@ func IsLocalEnv() bool {
 	return Config.Env == "local"
 }
 
+func Env() string {
+	return Config.Env
+}
+
 func Md5Str(str string) string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(str)))
 }

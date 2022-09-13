@@ -1,25 +1,6 @@
 /*
  * @Date: 2022-09-05 21:01:06
  */
-// /*
-//  * @Date: 2022-09-05 21:01:06
-//  */
-
-// document.write('<script src="/statics/assets/vendor/jquery/jquery-3.3.1.min.js"></script>')
-// //popper.js必须在bootstrap.js之前引用进来，否则报错的
-// document.write('<script src="/statics/assets/vendor/bootstrap/js/popper.min.js"></script>')
-// document.write('<script src="/statics/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>')
-// document.write('<script src="/statics/assets/vendor/bootstrap/js/bootstrap.min.js"></script>')
-// document.write('<script src="/statics/assets/vendor/bootstrap/js/fileinput.min.js"></script>')
-
-// document.write('<script src="/statics/assets/vendor/slimscroll/jquery.slimscroll.js"></script>')
-// document.write('<script src="/statics/assets/vendor/multi-select/js/jquery.multi-select.js"></script>')
-// document.write('<script src="/statics/assets/libs/js/main-js.js"></script>')
-
-// document.write('<script type="text/javascript" src="/statics/assets/js/helper.js"></script>')
-// document.write('<script type="text/javascript" src="/statics/assets/js/admin/order.js"></script>')
-// document.write('<script type="text/javascript" src="/statics/assets/js/admin/admin_user.js"></script>')
-
 function commonFetch(url, options) {
     return fetch(url, options).then(function(response) {
         if (response.status == 403) {
@@ -46,4 +27,36 @@ function listPaginate(totalCount, pageSize = 15)
     }
     paginate += "</ul></nav>";
     $("#pagination").append(paginate)
+}
+
+function renderSideBar()
+{
+    // url = "/admin/menu";
+    // options = {
+    //     method: 'get',
+    //     headers: {
+    //         "Content-Type": "application/json charset=utf-8"
+    //     },
+    // }
+    // var menuTpl = "<li class='nav-item '><a class='nav-link active' href='#' data-toggle='collapse' aria-expanded='false' data-target='#submenu-{parentId}' aria-controls='submenu-{parentId}'><i class='{icon}'></i>{name} <span class='badge badge-success'>6</span></a>"
+    // menuTpl += "<div id='submenu-{parentId}' class='collapse submenu' style=''><ul class='nav flex-column'>{subMenu}</ul></div></li>"
+    // subMenuTpl = "<li class='nav-item'><a class='nav-link' href='{pagePath}'>{name}</a></li>"
+    // subMenu = "";
+
+    // commonFetch(url, options).then(function (jsonResult) {
+    //     list = jsonResult.data.items;
+    //     // 先处理树
+    //     // list = getTree(list)
+    //     $.each(list, function (index, item) {
+    //         subMenu += subMenuTpl.replace(/{(\w+)}/g, function(_, $1) {
+    //             return item[$1]
+    //         })
+    //     })
+    //     console.log(menu)
+    //     console.log(subMenu)
+    //     menu = menu.replace("{subMenu}", subMenu)
+    //     console.log(menu)
+    //     $(".sidebar").append(menu)
+    // })
+
 }

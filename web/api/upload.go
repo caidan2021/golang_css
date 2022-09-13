@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-08-19 16:44:11
  */
-package web
+package api
 
 import (
 	"gin/util"
