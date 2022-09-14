@@ -2,6 +2,7 @@ package util
 
 import (
 	"reflect"
+	"strings"
 )
 
 // Distinct returns the unique vals of a slice
@@ -721,4 +722,20 @@ func IsContainInIntArr(arg []int, item interface{}) bool {
 		}
 	}
 	return false
+}
+
+func GetKeyFromArr(arr []string, search string, like bool) int {
+	index := -1
+	for i := 0; i < len(arr); i++ {
+		if like {
+			if strings.Contains(arr[i], search) {
+				index = i
+				break
+			}
+		} else if search == arr[i] {
+			index = i
+			break
+		}
+	}
+	return index
 }

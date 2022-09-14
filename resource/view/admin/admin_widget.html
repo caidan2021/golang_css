@@ -1,0 +1,196 @@
+<!--
+ * @Date: 2022-09-13 17:26:04
+-->
+<!doctype html>
+<html lang="en">
+ 
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>小工具</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/statics/assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link href="/statics/assets/vendor/fonts/circular-std/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="/statics/assets/libs/css/style.css">
+    <link rel="stylesheet" href="/statics/assets/vendor/fonts/fontawesome/css/fontawesome-all.css">
+</head>
+
+<body>
+    <!-- ============================================================== -->
+    <!-- main wrapper -->
+    <!-- ============================================================== -->
+    <div class="dashboard-main-wrapper">
+        {{template "header"}}
+        {{template "sidebar"}}
+        <!-- wrapper  -->
+        <!-- ============================================================== -->
+        <div class="dashboard-wrapper">
+            <div class="container-fluid dashboard-content">
+                <!-- ============================================================== -->
+                <!-- pageheader -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                        <div class="page-header">
+                            <h2 class="pageheader-title">Widget</h2>
+                            <div class="page-breadcrumb">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Dashboard</a></li>
+                                        <li class="breadcrumb-item"><a href="#" class="breadcrumb-link">Pages</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page">Widget</li>
+                                    </ol>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- end pageheader -->
+                <!-- ============================================================== -->
+                <!-- ============================================================== -->
+                <!-- pricing - one -->
+                <!-- ============================================================== -->
+                <div class="offset-xl-1 col-xl-10">
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-6 col-sm-12 col-12">
+                        <div class="section-block">
+                        <!-- <h3>Influencer Pricing Table</h3> -->
+                    </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12">
+                        <div class="card">
+                            <div class="card-header bg-primary text-center p-3 ">
+                                <h4 class="mb-0 text-white">位图坐标转换器</h4>
+                            </div>
+                            <!-- <div class="card-body text-center">
+                                <h1 class="mb-1">请上传文件</h1>
+                                <p>Per Month Plateform</p>
+                            </div> -->
+                            <div class="card-body border-top">
+                                <ul class="list-unstyled bullet-check font-14">
+                                    <li>请上传txt文件</li>
+                                    <li>文件编码仅支持gbk，utf-8</li>
+                                </ul>
+                                <a href="#" class="btn btn-outline-secondary btn-block btn-lg" onclick="weituForm()">Get Started</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 col-12">
+                        <div class="card">
+                            <div class="card-header bg-primary text-center p-3 ">
+                                <h4 class="mb-0 text-white">广告位招租</h4>
+                            </div>
+                            <!-- <div class="card-body text-center">
+                                <h1 class="mb-1">$150</h1>
+                                <p>Per Month Plateform</p>
+                            </div> -->
+                            <div class="card-body border-top">
+                                <ul class="list-unstyled bullet-check font-14">
+                                    <li>Facebook, Instagram, Pinterest,Snapchat.</li>
+                                </ul>
+                                <a href="#" class="btn btn-outline-secondary btn-block btn-lg">Get Started</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <!-- ============================================================== -->
+            <!-- footer -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- end footer -->
+            <!-- ============================================================== -->
+        </div>
+        {{ template "footer" }}
+    </div>
+    <!-- ============================================================== -->
+    <!-- end main wrapper -->
+    <div class="modal fade" id="weituForm" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">位图坐标数据转换</h5>
+                    <a href="#" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </a>
+                </div>
+                <div class="modal-body">
+                        <form id="form" data-parsley-validate="" novalidate="" method="POST">
+                            <div id="form-hidden-items">
+                            </div>
+                            <div class="form-group row">
+                                <label for="inputEmail2" class="col-3 col-lg-2 col-form-label text-right">选择文件</label>
+                                <div class="col-9 col-lg-10">
+                                    <input type="file" class="custom-file-input" id="file" name="file" required>
+                                    <label class="custom-file-label" for="customFile">点击选择文件</label>
+                                </div>
+                            </div>
+                        </form>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-space btn-primary" onclick="weituFormSubmit()" value="Submit">
+                    <input type="button" class="btn btn-space btn-secondary" value="Cancel">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+ 
+<script>
+    function weituForm()
+    {
+        $("#weituForm").modal("show")
+    }
+
+    function weituFormSubmit()
+    {
+        var fileData = $("#file").prop("files")[0];
+        if (typeof fileData == undefined) {
+            alert("请不要提交空数据")
+            return 
+        }
+        var formData = new FormData();
+        formData.append("file", fileData);
+        url = "/admin/widget/wt/fmt";
+        options = {
+            method: 'post',
+            contentType: false,
+            processData: false,
+            data: formData,
+        }
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (result) {//请求成功时拿到数据
+                successData = result
+            },
+            complete: function (xhr) { //请求完成后，获取fileName，处理数据
+                //获取Response Headers 中的 Content-Disposition
+                let ContentDisposition = xhr.getResponseHeader('Content-Disposition')
+                //获取fileName，先将"全局替换为空，再从=开始截取字符串
+                fileName = ContentDisposition.replace(/"/g,"").split('=')[1];
+
+                // 文件下载实现
+                let uri = 'data:text/csv;charset=utf-8,\ufeff' + encodeURIComponent(successData);//encodeURIComponent解决中文乱码
+                //通过创建a标签实现
+                let link = document.createElement("a");
+                link.href = uri;
+                //对下载的文件命名
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }, error => {
+            console.log('导出excel出错');
+        });
+    }
+</script>
+</html>

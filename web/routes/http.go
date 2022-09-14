@@ -41,6 +41,9 @@ func AdminRegisterRoute(c *gin.Engine) {
 		admin.POST("/order/create", controller.AdminCreateOrder)
 		admin.POST("/order/change/status", controller.ChangeOrderStatus)
 		admin.POST("/order/edit/extra", controller.EditOrderExtra)
+
+		// Widget
+		admin.POST("/widget/wt/fmt", controller.WeiTuFmt)
 	}
 
 }
