@@ -7,18 +7,9 @@ import (
 	"bytes"
 	"io/ioutil"
 
-	"github.com/axgle/mahonia"
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 )
-
-func UseNewEncoder(src string, oldEncoder string, newEncoder string) string {
-	srcDecoder := mahonia.NewDecoder(oldEncoder)
-	desDecoder := mahonia.NewDecoder(newEncoder)
-	resStr := srcDecoder.ConvertString(src)
-	_, resBytes, _ := desDecoder.Translate([]byte(resStr), true)
-	return string(resBytes)
-}
 
 // transform GBK string to UTF-8 string and replace it, if transformed success, returned nil error, or died by error message
 func StrToUtf8(str *string) error {
