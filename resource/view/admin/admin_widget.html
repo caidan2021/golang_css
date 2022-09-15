@@ -172,6 +172,10 @@
                 successData = result
             },
             complete: function (xhr) { //请求完成后，获取fileName，处理数据
+                if (xhr.status == 403) {
+                    alert("请登陆")
+                    location.href = "/admin/view/admin_login"
+                }
                 //获取Response Headers 中的 Content-Disposition
                 let ContentDisposition = xhr.getResponseHeader('Content-Disposition')
                 //获取fileName，先将"全局替换为空，再从=开始截取字符串
