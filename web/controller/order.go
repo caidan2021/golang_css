@@ -21,7 +21,7 @@ func OrderList(ctx *gin.Context) {
 	ls := []*models.Order{}
 	query := drivers.Mysql().Model(&models.Order{})
 
-	page, pageSize := util.Paging(ctx.DefaultQuery("page", "1"), ctx.DefaultQuery("pageSize", "15"))
+	page, pageSize := util.Paging(ctx.DefaultQuery("page", "1"), ctx.DefaultQuery("pageSize", "10"))
 
 	orderNo := ctx.Query("orderNo")
 	if orderNo != "" {
