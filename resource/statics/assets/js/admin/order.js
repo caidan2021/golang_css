@@ -60,6 +60,8 @@ function orderList() {
                         orderStatusText = "<span class='mr-2'><span class='badge-dot  badge-secondary'>";
                     } else if (item.orderStatus == 30) {
                         orderStatusText = "<span class='mr-2'><span class='badge-dot badge-success'>"
+                    } else if (item.orderStatus == 40) {
+                        orderStatusText = "<span class='mr-2'><span class='badge-dot badge-dark'>"
                     } else {
                         orderStatusText = "<span class='mr-2'>  <span class='badge-dot badge-light'>"
                     }
@@ -77,6 +79,7 @@ function orderList() {
                     operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 15 + ")'>设为部分到货</a></li>"
                     operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 20 + ")'>设为已到货</a></li>"
                     operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 30 + ")'>设为已发货</a></li>"
+                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 40 + ")'>设为已取消</a></li>"
                     operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:editExtraForm(" + JSON.stringify(item).replace(/\”/g,"'") + ")'>编辑</a></li>"
                     operationBtn += "</ul>"
                     return operationBtn

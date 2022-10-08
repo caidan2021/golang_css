@@ -21,6 +21,7 @@ const (
 	OrderStatusOfGotPart  = 15
 	OrderStatusOfGot      = 20
 	OrderStatusOfDelivery = 30
+	OrderStatusOfCancel   = 40
 
 	// text
 	OrderStatusOfInitText     = "创建"
@@ -28,6 +29,7 @@ const (
 	OrderStatusOfGotPartText  = "部分到货"
 	OrderStatusOfGotText      = "到货"
 	OrderStatusOfDeliveryText = "已发货"
+	OrderStatusOfCancelText   = "已取消"
 )
 
 const (
@@ -49,6 +51,7 @@ var statusToTextMap map[int64]string = map[int64]string{
 	OrderStatusOfGotPart:  OrderStatusOfGotPartText,
 	OrderStatusOfGot:      OrderStatusOfGotText,
 	OrderStatusOfDelivery: OrderStatusOfDeliveryText,
+	OrderStatusOfCancel:   OrderStatusOfCancelText,
 }
 
 type Order struct {
@@ -233,13 +236,15 @@ func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
 	var rt []int
 	switch currentOrderStatus {
 	case OrderStatusOfInit:
-		return append(rt, OrderStatusOfPay), nil
+		return append(rt, OrderStatusOfPay, OrderStatusOfCancel), nil
 	case OrderStatusOfPay:
-		return append(rt, OrderStatusOfGotPart, OrderStatusOfGot), nil
+		return append(rt, OrderStatusOfGotPart, OrderStatusOfGot, OrderStatusOfCancel), nil
 	case OrderStatusOfGotPart:
-		return append(rt, OrderStatusOfGot), nil
+		return append(rt, OrderStatusOfGot, OrderStatusOfCancel), nil
 	case OrderStatusOfGot:
-		return append(rt, OrderStatusOfDelivery), nil
+		return append(rt, OrderStatusOfDelivery, OrderStatusOfCancel), nil
+	case OrderStatusOfCancel:
+		return rt, nil
 	default:
 		return nil, fmt.Errorf("当前订单状态不可更新")
 	}
