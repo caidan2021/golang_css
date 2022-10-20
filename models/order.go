@@ -68,12 +68,13 @@ type OrderThumbnail []string
 
 type OrderFmtOutPut struct {
 	Order
-	ThirdPartyOrderFlag string          `json:"thirdPartyOrderFlag"`
-	OrderStatusText     string          `json:"orderStatusText"`
-	AddressInfo         interface{}     `json:"addressInfo"`
-	CreatedTime         string          `json:"createdTime"`
-	ProductItems        []*OrderProduct `json:"productItems"`
-	Extra               interface{}     `json:"extra"`
+	ThirdPartyOrderFlag string             `json:"thirdPartyOrderFlag"`
+	OrderStatusText     string             `json:"orderStatusText"`
+	AddressInfo         interface{}        `json:"addressInfo"`
+	CreatedTime         string             `json:"createdTime"`
+	ProductItems        []*OrderProductFmt `json:"productItems"`
+	Extra               interface{}        `json:"extra"`
+	OrderHistories      []*OrderHistoryFmt `json:"orderHistories"`
 }
 
 func (Order) TableName() string {
@@ -150,6 +151,8 @@ func (Order) GetOrderHistoryEvent(orderStatus int) string {
 		return HistoryTypeOfOrderGot
 	case OrderStatusOfDelivery:
 		return HistoryTypeOfOrderDelivery
+	case OrderStatusOfCancel:
+		return HistoryTypeOfOrderCancel
 	default:
 		return ""
 	}
@@ -236,11 +239,11 @@ func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
 	var rt []int
 	switch currentOrderStatus {
 	case OrderStatusOfInit:
-		return append(rt, OrderStatusOfPay, OrderStatusOfCancel), nil
+		return append(rt, OrderStatusOfPay, OrderStatusOfCancel, OrderStatusOfGot, OrderStatusOfGotPart, OrderStatusOfDelivery), nil
 	case OrderStatusOfPay:
-		return append(rt, OrderStatusOfGotPart, OrderStatusOfGot, OrderStatusOfCancel), nil
+		return append(rt, OrderStatusOfGotPart, OrderStatusOfGot, OrderStatusOfCancel, OrderStatusOfDelivery), nil
 	case OrderStatusOfGotPart:
-		return append(rt, OrderStatusOfGot, OrderStatusOfCancel), nil
+		return append(rt, OrderStatusOfGot, OrderStatusOfCancel, OrderStatusOfDelivery), nil
 	case OrderStatusOfGot:
 		return append(rt, OrderStatusOfDelivery, OrderStatusOfCancel), nil
 	case OrderStatusOfCancel:
@@ -250,7 +253,7 @@ func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
 	}
 }
 
-func (o Order) RenderData() (*OrderFmtOutPut, error) {
+func (o Order) Fmt() (*OrderFmtOutPut, error) {
 	fmtOrder := OrderFmtOutPut{}
 	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 08:09:10")
 	fmtOrder.OrderStatusText = o.GetOrderStatusText(o.OrderStatus)
@@ -259,6 +262,19 @@ func (o Order) RenderData() (*OrderFmtOutPut, error) {
 	fmtOrder.AddressInfo = o.GetOrderFmtAddress()
 	fmtOrder.Extra = o.GetOrderFmtExtend()
 	fmtOrder.Order = o
-	fmtOrder.ProductItems = OrderProduct{}.GetByOrderId(o.ID)
+
+	// 订单商品
+	orderProducts := OrderProduct{}.GetByOrderId(o.ID)
+	for _, productItem := range orderProducts {
+		item := productItem.Fmt()
+		fmtOrder.ProductItems = append(fmtOrder.ProductItems, item)
+	}
+
+	// 订单历史
+	orderHistory := OrderHistory{}.GetByOrderIdDesc(o.ID)
+	for _, historyItem := range orderHistory {
+		item := historyItem.Fmt()
+		fmtOrder.OrderHistories = append(fmtOrder.OrderHistories, item)
+	}
 	return &fmtOrder, nil
 }

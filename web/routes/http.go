@@ -38,6 +38,7 @@ func AdminRegisterRoute(c *gin.Engine) {
 
 		// 订单
 		admin.GET("/order/list", controller.OrderList)
+		admin.GET("/order/statistics", controller.OrderListStatistics)
 		admin.POST("/order/create", controller.AdminCreateOrder)
 		admin.POST("/order/change/status", controller.ChangeOrderStatus)
 		admin.POST("/order/edit/extra", controller.EditOrderExtra)

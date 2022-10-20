@@ -16,7 +16,7 @@ type OrderCreateItem struct {
 	OutOrderNo     string                 `json:"outOrderNo" binding:"required"`
 	Thumbnails     *models.OrderThumbnail `json:"thumbnails"`
 	AddressInfo    string                 `json:"addressInfo"`
-	ProductItems   []models.OrderProduct  `json:"productItems"`
+	ProductItems   []models.OrderProduct  `json:"productItems" binding:"required"`
 	Extra          []models.ExtendFmtItem `json:"extra"`
 }
 
@@ -73,8 +73,14 @@ func CreateOrder(item OrderCreateItem) (*models.Order, error) {
 		}
 
 		// 创建订单商品信息
+		if len(item.ProductItems) == 0 {
+			return fmt.Errorf("no product items, errorMsg")
+		}
 		for _, productItem := range item.ProductItems {
-			newOrderProduct := models.OrderProduct{}.NewOrderProduct(newOrder.ID, productItem.ProductId, productItem.SkuId, productItem.TotalCount)
+			newOrderProduct, err := models.OrderProduct{}.CreateBaseOrderProduct(newOrder.ID, productItem.ProductId, productItem.SkuId, productItem.Count, productItem.Thumbnail)
+			if err != nil {
+				return fmt.Errorf("createOrderProduct failed: %v", err)
+			}
 			if err := tx.Create(&newOrderProduct).Error; err != nil {
 				return fmt.Errorf("createOrderProduct failed: %v", err)
 			}

@@ -1,12 +1,31 @@
+/*
+ * @Date: 2022-08-18 17:05:27
+ */
 package models
 
 import (
 	"database/sql/driver"
 	"fmt"
-	"gorm.io/plugin/soft_delete"
 	"time"
+
+	"gorm.io/plugin/soft_delete"
 )
 
+type SearchCond struct {
+	ColumnName string      `json:"columnName"`
+	Operator   string      `json:"operator"`
+	Context    interface{} `json:"context"`
+}
+
+const (
+	SortOfDesc = "desc"
+	SortOfAsc  = "asc"
+)
+
+type SortCond struct {
+	ColumnName string `json:"columnName"`
+	Sort       string `json:"sort"`
+}
 type Tabler interface {
 	TableName() string
 }

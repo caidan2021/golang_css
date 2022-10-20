@@ -41,7 +41,7 @@ func OrderList(ctx *gin.Context) {
 
 	res := []*models.OrderFmtOutPut{}
 	for _, order := range ls {
-		item, err := order.RenderData()
+		item, err := order.Fmt()
 		if err != nil {
 			ctx.JSON(http.StatusOK, util.FailedRespPackage(fmt.Sprintf("failed render order :%d, error: %v", order.ID, err)))
 			return
@@ -50,6 +50,23 @@ func OrderList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"list": res, "total": total}))
+	return
+}
+
+func OrderListStatistics(ctx *gin.Context) {
+
+	result := make(map[string]interface{})
+
+	// 总订单数
+	result["totalCount"] = 1000
+	// 待下单数量
+	result["waitingPlaceCount"] = 100
+	// 待收货数量
+	result["waitingGotCount"] = 100
+	// 已发货数量
+	result["deliveredCount"] = 100
+
+	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"item": result}))
 	return
 }
 
