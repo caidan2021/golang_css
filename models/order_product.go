@@ -36,7 +36,7 @@ func (OrderProduct) TableName() string {
 	return "css_order_product"
 }
 
-func (op OrderProduct) CreateBaseOrderProduct(tx *gorm.DB, orderId, productId, skuId, count int64, thumbnail string) (*OrderProduct, error) {
+func (op OrderProduct) CreateBaseOrderProduct(tx *gorm.DB, orderId, skuId, count int64, thumbnail string) (*OrderProduct, error) {
 
 	sku := ProductSku{}.FindById(skuId)
 	if sku == nil {
@@ -44,13 +44,13 @@ func (op OrderProduct) CreateBaseOrderProduct(tx *gorm.DB, orderId, productId, s
 	}
 	product := Product{}.FindById(sku.ProductId)
 	if product == nil {
-		return nil, fmt.Errorf("product id %d not found", productId)
+		return nil, fmt.Errorf("product id %d not found", sku.ProductId)
 	}
 
 	op = OrderProduct{
 		OrderId:      orderId,
 		SkuId:        skuId,
-		ProductId:    productId,
+		ProductId:    sku.ProductId,
 		SkuUnitPrice: sku.UnitPrice,
 		Count:        count,
 		Thumbnail:    thumbnail,
