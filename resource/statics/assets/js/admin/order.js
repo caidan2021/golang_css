@@ -38,7 +38,7 @@ function orderList() {
         $.each(list, function(index, item) {
             html += tr.replace(/{(\w+)}/g, function(_, $1) {
                 if ($1 == 'id') {
-                    id = "<code>" + item['id'] + "</code>"
+                    id = "<code>" + item['id'] + "</code><br>"
                     if (item.orderStatus == 0) {
                         id += "<span class='mr-2'> <span class='badge-dot badge-primary'>";
                     } else if (item.orderStatus == 10) {
