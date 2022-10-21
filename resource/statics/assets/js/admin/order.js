@@ -32,7 +32,7 @@ function orderList() {
             return
         }
 
-        var html = "<thead><tr><th width='20%'>ID/外部单号</th><th width='15%'>金额信息</th><th width='30%'>订单商品</th><th width='25%'>地址</th><th>其他信息</th><th width='10%'>操作</th></tr></thead><tbody id='tbody'></tbody>"
+        var html = "<thead><tr><th width='20%'>ID/外部单号</th><th width='18%'>金额信息</th><th width='30%'>订单商品</th><th width='25%'>地址</th><th width='20%'>其他信息</th><th width='10%'>操作</th></tr></thead><tbody id='tbody'></tbody>"
         var tr = "<tr><td>{id}</td><td>{amountInfo}</td><td>{orderProducts}</td><td>{addressInfo}</td><td>{extra}</td><td>{operationBtn}</td></tr>"
         list = jsonResult.data.list
         $.each(list, function(index, item) {
@@ -58,8 +58,8 @@ function orderList() {
 
                 } else if ($1 == 'amountInfo') {
                     var amount = "";
-                    amount += "总金额：<code>" + item.totalAmount / 100 + "</code><br>"
-                    amount += "折扣金额：<code>" + item.totalDiscountAmount / 100 + "</code><br>"
+                    amount += "总金额：" + item.totalAmount / 100 + "<br>"
+                    amount += "折扣金额：" + item.totalDiscountAmount / 100 + "<br>"
                     amount += "实付金额：<code>" + item.realTotalAmount / 100 + "</code><br>"
                     return amount
                 } else if ($1 == 'orderProducts') {
@@ -71,7 +71,7 @@ function orderList() {
                                 if (k != 0) {
                                     products += "<hr>"
                                 }
-                                products += productItem.product.title + "-" + productItem.sku.title + "*" + productItem.count + "  <img src='" + productItem.thumbnail + "' height='55px' alt='加载...' />"
+                                products += "<b>" + productItem.product.title + "-" + productItem.sku.title + " * " + "<code>" + productItem.count + "</code></b>  <img src='" + productItem.thumbnail + "' height='55px' alt='加载...' />"
                             }
                         }
                     } else if (item["thumbnail"]) {
