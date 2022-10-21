@@ -32,7 +32,7 @@ function orderList() {
             return
         }
 
-        var html = "<thead><tr><th width='20%'>ID/外部单号</th><th width='15%'>金额信息</th><th width='30%'>订单商品</th><th width='25%'>地址</th><th>其他信息</th><th>操作</th></tr></thead><tbody id='tbody'></tbody>"
+        var html = "<thead><tr><th width='20%'>ID/外部单号</th><th width='15%'>金额信息</th><th width='30%'>订单商品</th><th width='25%'>地址</th><th>其他信息</th><th width='10%'>操作</th></tr></thead><tbody id='tbody'></tbody>"
         var tr = "<tr><td>{id}</td><td>{amountInfo}</td><td>{orderProducts}</td><td>{addressInfo}</td><td>{extra}</td><td>{operationBtn}</td></tr>"
         list = jsonResult.data.list
         $.each(list, function(index, item) {
