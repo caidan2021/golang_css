@@ -32,7 +32,7 @@ function orderList() {
             return
         }
 
-        var html = "<thead><tr><th width='20%'>ID/外部单号</th><th width='18%'>金额信息</th><th width='30%'>订单商品</th><th width='25%'>地址</th><th width='20%'>其他信息</th><th width='10%'>操作</th></tr></thead><tbody id='tbody'></tbody>"
+        var html = "<thead><tr><th width='250px'>ID/外部单号</th><th width='200px'>金额信息</th><th width='350px'>订单商品</th><th width='300px'>地址</th><th width='350px'>其他信息</th><th width='100px'>操作</th></tr></thead><tbody id='tbody'></tbody>"
         var tr = "<tr><td>{id}</td><td>{amountInfo}</td><td>{orderProducts}</td><td>{addressInfo}</td><td>{extra}</td><td>{operationBtn}</td></tr>"
         list = jsonResult.data.list
         $.each(list, function(index, item) {
@@ -87,9 +87,19 @@ function orderList() {
                 } else if ($1 == 'addressInfo') {
                     return item[$1]
                 } else if ($1 == 'extra') {
-                    if (!!item.extra && item.extra.length > 0) {
-                        return JSON.stringify(item.extra)
+                    var extra = ""
+                    if (item["extra"]) {
+                        for (k = 0; k < item["extra"].length; k++) {
+                            if (k != 0) {
+                                extra += "<hr>"
+                            }
+                            extra += "*" + item["extra"][k]["name"] + ": " + item["extra"][k]["item"]
+                        }
                     }
+                    return extra
+                    // if (!!item.extra && item.extra.length > 0) {
+                    //     return JSON.stringify(item.extra)
+                    // }
                 } else if ($1 == 'operationBtn') {
                     operationBtn = "<input type='button' class='btn btn-outline-success dropdown-toggle' data-toggle='dropdown' value='操作'>"
                     operationBtn += "<ul class='dropdown-menu'>"
