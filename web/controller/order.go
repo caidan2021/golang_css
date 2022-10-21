@@ -119,9 +119,9 @@ func ChangeOrderStatus(ctx *gin.Context) {
 		}
 		// 创建订单历史
 		if event := order.GetOrderHistoryEvent(r.OrderStatus); event != "" {
-			newOrderHistory := models.OrderHistory{}.NewOrderHistory(order.ID, 1, event, "")
-			if err := tx.Create(&newOrderHistory).Error; err != nil {
-				return fmt.Errorf("createOrderHistory failed: %s", err)
+			_, err := models.OrderHistory{}.CreateOrderHistory(tx, order.ID, 1, event, "")
+			if err != nil {
+				return err
 			}
 		}
 
@@ -160,15 +160,9 @@ func EditOrderExtra(ctx *gin.Context) {
 			}
 
 			if orderAddress == nil {
-				newOrderAddress, err := order.NewOrderAddress(r.AddressExtra)
+				newOrderAddress, err := models.OrderAddress{}.CreateOrderAddress(tx, *order, r.AddressExtra)
 				if err != nil {
-					return fmt.Errorf(err.Error())
-				}
-				if newOrderAddress == nil {
-					return fmt.Errorf("new order address got error")
-				}
-				if err := tx.Create(&newOrderAddress).Error; err != nil {
-					return fmt.Errorf("create new order address failed: %s", err)
+					return err
 				}
 				orderAddress = newOrderAddress
 			}
@@ -190,18 +184,13 @@ func EditOrderExtra(ctx *gin.Context) {
 			}
 
 			if orderExtend == nil {
-				newOrderExtend, err := order.NewOrderExtend(*r.OrderExtra)
+				newOrderExtend, err := models.OrderExtend{}.CreateOrderExtend(tx, *order, *r.OrderExtra)
 				if err != nil {
-					return fmt.Errorf(err.Error())
-				}
-				if newOrderExtend == nil {
-					return fmt.Errorf("new order extend got error")
-				}
-				if err := tx.Create(&newOrderExtend).Error; err != nil {
-					return fmt.Errorf("create new order extend failed: %s", err)
+					return err
 				}
 				orderExtend = newOrderExtend
 			}
+
 			ext, err := json.Marshal(&r.OrderExtra)
 			if err != nil {
 				return err

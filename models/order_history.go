@@ -38,14 +38,19 @@ func (OrderHistory) TableName() string {
 	return "css_order_history"
 }
 
-func (OrderHistory) NewOrderHistory(orderId, actionUserId int64, event, remark string) *OrderHistory {
-	newOrderHistory := OrderHistory{
+func (oh OrderHistory) CreateOrderHistory(tx *gorm.DB, orderId, actionUserId int64, event, remark string) (*OrderHistory, error) {
+	oh = OrderHistory{
 		OrderId:    orderId,
 		ActionUser: actionUserId,
 		Event:      event,
 		Remark:     remark,
 	}
-	return &newOrderHistory
+
+	if err := tx.Create(&oh).Error; err != nil {
+		return nil, fmt.Errorf("createOrderHistory failed: %s", err)
+	}
+	return &oh, nil
+
 }
 
 func (oh OrderHistory) Search(tx *gorm.DB, cond []*SearchCond, sortCond []*SortCond) []*OrderHistory {

@@ -24,66 +24,50 @@ func CreateOrder(item OrderCreateItem) (*models.Order, error) {
 	newOrder := models.Order{}
 	if err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
 
-		thirdPartyId := newOrder.GetThirdPartyOrderIdByFlag(item.ThirdPartyFlag)
-		if thirdPartyId == 0 {
-			return fmt.Errorf("invalid third party flag")
-		}
-
-		if newOrder.OutOrderNoExistsByThirdPartyId(item.OutOrderNo, thirdPartyId) {
-			return fmt.Errorf("out of order number is exists")
-		}
-
-		newOrder.ThirdPartyID = thirdPartyId
-		newOrder.OutOrderNo = item.OutOrderNo
-		if item.Thumbnails != nil {
-			newOrder.Thumbnail = *item.Thumbnails
-		}
-
-		if err := tx.Create(&newOrder).Error; err != nil {
-			return fmt.Errorf(fmt.Sprintf("failed to create order outOrderNo: %s, error: %v", item.OutOrderNo, err))
+		if order, err := newOrder.CreateBaseOrder(tx, item.ThirdPartyFlag, item.OutOrderNo, *item.Thumbnails); err != nil {
+			return err
+		} else {
+			newOrder = *order
 		}
 
 		// 创建订单log
-		newOrderHistory := models.OrderHistory{}.NewOrderHistory(newOrder.ID, 1, models.HistoryTypeOfOrderCreate, "")
-		if err := tx.Create(&newOrderHistory).Error; err != nil {
-			return fmt.Errorf("createOrderHistory failed: %s", err)
+		_, err := models.OrderHistory{}.CreateOrderHistory(tx, newOrder.ID, 1, models.HistoryTypeOfOrderCreate, "")
+		if err != nil {
+			return err
 		}
 
 		// 创建订单扩展
-		newOrderExtend, err := newOrder.NewOrderExtend(item.Extra)
+		_, err = models.OrderExtend{}.CreateOrderExtend(tx, newOrder, item.Extra)
 		if err != nil {
-			return fmt.Errorf(err.Error())
-		}
-		if newOrderExtend != nil {
-			if err := tx.Create(&newOrderExtend).Error; err != nil {
-				return fmt.Errorf("createOrderExtend failed: %v", err)
-			}
+			return err
 		}
 
 		// 创建订单地址信息
-		newOrderAddress, err := newOrder.NewOrderAddress(item.AddressInfo)
+		_, err = models.OrderAddress{}.CreateOrderAddress(tx, newOrder, item.AddressInfo)
 		if err != nil {
-			return fmt.Errorf(err.Error())
-		}
-		if newOrderAddress == nil {
-			return fmt.Errorf("failed to create order address, errorMsg: %s", item.AddressInfo)
-		}
-		if err := tx.Create(&newOrderAddress).Error; err != nil {
-			return fmt.Errorf("createOrderAddress failed: %v", err)
+			return err
 		}
 
 		// 创建订单商品信息
 		if len(item.ProductItems) == 0 {
 			return fmt.Errorf("no product items, errorMsg")
 		}
+		newOps := []models.OrderProduct{}
 		for _, productItem := range item.ProductItems {
-			newOrderProduct, err := models.OrderProduct{}.CreateBaseOrderProduct(newOrder.ID, productItem.ProductId, productItem.SkuId, productItem.Count, productItem.Thumbnail)
+			op, err := models.OrderProduct{}.CreateBaseOrderProduct(tx, newOrder.ID, productItem.ProductId, productItem.SkuId, productItem.Count, productItem.Thumbnail)
 			if err != nil {
-				return fmt.Errorf("createOrderProduct failed: %v", err)
+				return err
 			}
-			if err := tx.Create(&newOrderProduct).Error; err != nil {
-				return fmt.Errorf("createOrderProduct failed: %v", err)
-			}
+			newOps = append(newOps, *op)
+		}
+
+		// 计算订单金额
+		if err := newOrder.CalculateAmount(newOps); err != nil {
+			return err
+		}
+
+		if err := tx.Save(&newOrder).Error; err != nil {
+			return fmt.Errorf("createOrderProduct failed: %v", err)
 		}
 
 		return nil

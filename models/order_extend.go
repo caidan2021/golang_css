@@ -6,6 +6,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"gin/drivers"
 
 	"gorm.io/gorm"
@@ -25,6 +26,24 @@ func (OrderExtend) TableName() string {
 type ExtendFmtItem struct {
 	Name string `json:"name" binding:"required"`
 	Item string `json:"item" binding:"required"`
+}
+
+func (oe OrderExtend) CreateOrderExtend(tx *gorm.DB, order Order, items []ExtendFmtItem) (*OrderExtend, error) {
+	oe = OrderExtend{
+		OrderId: order.ID,
+	}
+	if order.IsAmzOrder() {
+		if items == nil {
+			return nil, nil
+		}
+		if err := oe.FmtOrderExtend(items); err != nil {
+			return nil, fmt.Errorf("createOrderExtend fmt amz order extend failed: %v", err)
+		}
+		if err := tx.Create(&oe).Error; err != nil {
+			return nil, fmt.Errorf("createOrderExtend failed: %v", err)
+		}
+	}
+	return &oe, nil
 }
 
 func (OrderExtend) GetByOrderId(orderId int64) (*OrderExtend, error) {

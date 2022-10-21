@@ -15,6 +15,36 @@ import (
 	"gorm.io/gorm"
 )
 
+type Order struct {
+	ID                  int64          `json:"id"`
+	ThirdPartyID        int64          `json:"thirdPartyId" binding:"required"`
+	OutOrderNo          string         `json:"outOrderNo" binding:"required"`
+	OrderStatus         int            `gorm:"default:0" json:"orderStatus"`
+	TotalAmount         int64          `json:"totalAmount"`
+	TotalDiscountAmount int64          `json:"totalDiscountAmount"`
+	RealTotalAmount     int64          `json:"realTotalAmount"`
+	Thumbnail           OrderThumbnail `json:"thumbnail"`
+
+	UnixModelTimeWithDel
+}
+
+func (Order) TableName() string {
+	return "css_order"
+}
+
+type OrderThumbnail []string
+
+type OrderFmtOutPut struct {
+	Order
+	ThirdPartyOrderFlag string             `json:"thirdPartyOrderFlag"`
+	OrderStatusText     string             `json:"orderStatusText"`
+	AddressInfo         interface{}        `json:"addressInfo"`
+	CreatedTime         string             `json:"createdTime"`
+	ProductItems        []*OrderProductFmt `json:"productItems"`
+	Extra               interface{}        `json:"extra"`
+	OrderHistories      []*OrderHistoryFmt `json:"orderHistories"`
+}
+
 const (
 	OrderStatusOfInit     = 0
 	OrderStatusOfPay      = 10
@@ -54,33 +84,6 @@ var statusToTextMap map[int64]string = map[int64]string{
 	OrderStatusOfCancel:   OrderStatusOfCancelText,
 }
 
-type Order struct {
-	ID           int64          `json:"id"`
-	ThirdPartyID int64          `json:"thirdPartyId" binding:"required"`
-	OutOrderNo   string         `json:"outOrderNo" binding:"required"`
-	OrderStatus  int            `gorm:"default:0" json:"orderStatus"`
-	Thumbnail    OrderThumbnail `json:"thumbnail"`
-
-	UnixModelTimeWithDel
-}
-
-type OrderThumbnail []string
-
-type OrderFmtOutPut struct {
-	Order
-	ThirdPartyOrderFlag string             `json:"thirdPartyOrderFlag"`
-	OrderStatusText     string             `json:"orderStatusText"`
-	AddressInfo         interface{}        `json:"addressInfo"`
-	CreatedTime         string             `json:"createdTime"`
-	ProductItems        []*OrderProductFmt `json:"productItems"`
-	Extra               interface{}        `json:"extra"`
-	OrderHistories      []*OrderHistoryFmt `json:"orderHistories"`
-}
-
-func (Order) TableName() string {
-	return "css_order"
-}
-
 func (t OrderThumbnail) Value() (driver.Value, error) {
 	b, err := json.Marshal(t)
 	return string(b), err
@@ -88,6 +91,38 @@ func (t OrderThumbnail) Value() (driver.Value, error) {
 
 func (t *OrderThumbnail) Scan(input interface{}) error {
 	return json.Unmarshal(input.([]byte), t)
+}
+
+func (o Order) CreateBaseOrder(tx *gorm.DB, thirdPartyFlag, outOrderNo string, thumbnails OrderThumbnail) (*Order, error) {
+	thirdPartyId := o.GetThirdPartyOrderIdByFlag(thirdPartyFlag)
+	if thirdPartyId == 0 {
+		return nil, fmt.Errorf("invalid third party flag")
+	}
+
+	if o.OutOrderNoExistsByThirdPartyId(outOrderNo, thirdPartyId) {
+		return nil, fmt.Errorf("out of order number is exists")
+	}
+
+	o.ThirdPartyID = thirdPartyId
+	o.OutOrderNo = outOrderNo
+	if thumbnails != nil {
+		o.Thumbnail = thumbnails
+	}
+
+	if err := tx.Create(&o).Error; err != nil {
+		return nil, fmt.Errorf(fmt.Sprintf("failed to create order outOrderNo: %s, error: %v", outOrderNo, err))
+	}
+	return &o, nil
+}
+
+func (o *Order) CalculateAmount(orderProducts []OrderProduct) error {
+	for _, item := range orderProducts {
+		fmt.Println(item.TotalAmount)
+		o.TotalAmount += item.TotalAmount
+		o.TotalDiscountAmount += item.TotalDiscountAmount
+		o.RealTotalAmount += item.RealTotalAmount
+	}
+	return nil
 }
 
 func (Order) OutOrderNoExistsByThirdPartyId(outOrderNo string, thirdPartyId int64) bool {
@@ -183,36 +218,6 @@ func (o Order) GetOrderFmtExtend() interface{} {
 
 func (o Order) IsAmzOrder() bool {
 	return o.ThirdPartyID == ThirdPartyOfAmz
-}
-
-func (o Order) NewOrderAddress(address interface{}) (*OrderAddress, error) {
-	newOrderAddress := OrderAddress{
-		OrderId: o.ID,
-	}
-	if o.IsAmzOrder() {
-		if err := newOrderAddress.FmtAmzOrderAddress(fmt.Sprintf("%v", address)); err != nil {
-			return nil, fmt.Errorf("createOrderAddress fmt amz order address failed: %v", err)
-		}
-		return &newOrderAddress, nil
-	}
-	return nil, fmt.Errorf("can't create order address")
-}
-
-func (o Order) NewOrderExtend(extend []ExtendFmtItem) (*OrderExtend, error) {
-	newOrderExtend := OrderExtend{
-		OrderId: o.ID,
-	}
-	if o.IsAmzOrder() {
-		if extend == nil {
-			return nil, nil
-		}
-		if err := newOrderExtend.FmtOrderExtend(extend); err != nil {
-			return nil, fmt.Errorf("createOrderExtend fmt amz order extend failed: %v", err)
-		}
-		return &newOrderExtend, nil
-	}
-	return nil, nil
-
 }
 
 func (o Order) ChangeStatusCheck(orderStatus int) (bool, error) {

@@ -6,6 +6,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"gin/drivers"
 
 	"gorm.io/gorm"
@@ -32,6 +33,23 @@ func (OrderAddress) TableName() string {
 
 type AmzAddress struct {
 	Address string `json:"address"`
+}
+
+func (oa OrderAddress) CreateOrderAddress(tx *gorm.DB, order Order, address interface{}) (*OrderAddress, error) {
+	oa = OrderAddress{
+		OrderId: order.ID,
+	}
+	if order.IsAmzOrder() {
+		if err := oa.FmtAmzOrderAddress(fmt.Sprintf("%v", address)); err != nil {
+			return nil, fmt.Errorf("createOrderAddress fmt amz order address failed: %v", err)
+		}
+		if err := tx.Create(&oa).Error; err != nil {
+			return nil, fmt.Errorf("createOrderAddress failed: %v", err)
+		}
+		return &oa, nil
+	}
+	return nil, fmt.Errorf("can't create order address")
+
 }
 
 func (OrderAddress) GetByOrderId(orderId int64) (*OrderAddress, error) {

@@ -17,10 +17,14 @@ type ProductSku struct {
 	Title     string `json:"title"`
 	UnitPrice int64  `json:"unitPrice"` // 单位 分
 	Currency  string `json:"currency"`
+	UnixModelTimeWithDel
+}
+type ProductSkuFmt struct {
+	ProductSku
 }
 
 func (ProductSku) TableName() string {
-	return "css_product_skus"
+	return "css_product_sku"
 }
 
 func (ps ProductSku) Search(cond []*SearchCond) []*ProductSku {
@@ -48,4 +52,10 @@ func (ps ProductSku) FindById(id int64) *ProductSku {
 		return nil
 	}
 	return sku[0]
+}
+
+func (ps ProductSku) Fmt() *ProductSkuFmt {
+	return &ProductSkuFmt{
+		ProductSku: ps,
+	}
 }

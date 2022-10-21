@@ -27,19 +27,27 @@ type OrderProduct struct {
 
 type OrderProductFmt struct {
 	OrderProduct
-	Extend *OrderProductExtendFmt `json:"extends"`
+	Product            *ProductFmt            `json:"product"`
+	ProductSku         *ProductSkuFmt         `json:"sku"`
+	OrderProductExtend *OrderProductExtendFmt `json:"orderProductExtends"`
 }
 
 func (OrderProduct) TableName() string {
 	return "css_order_product"
 }
 
-func (OrderProduct) CreateBaseOrderProduct(orderId, productId, skuId, count int64, thumbnail string) (*OrderProduct, error) {
+func (op OrderProduct) CreateBaseOrderProduct(tx *gorm.DB, orderId, productId, skuId, count int64, thumbnail string) (*OrderProduct, error) {
+
 	sku := ProductSku{}.FindById(skuId)
 	if sku == nil {
 		return nil, fmt.Errorf("sku id %d not found", skuId)
 	}
-	newOrderProduct := OrderProduct{
+	product := Product{}.FindById(sku.ProductId)
+	if product == nil {
+		return nil, fmt.Errorf("product id %d not found", productId)
+	}
+
+	op = OrderProduct{
 		OrderId:      orderId,
 		SkuId:        skuId,
 		ProductId:    productId,
@@ -47,11 +55,15 @@ func (OrderProduct) CreateBaseOrderProduct(orderId, productId, skuId, count int6
 		Count:        count,
 		Thumbnail:    thumbnail,
 	}
-	newOrderProduct.Calculate()
-	return &newOrderProduct, nil
+	op.calculate()
+
+	if err := tx.Create(&op).Error; err != nil {
+		return nil, fmt.Errorf("createOrderProduct failed: %v", err)
+	}
+	return &op, nil
 }
 
-func (op *OrderProduct) Calculate() {
+func (op *OrderProduct) calculate() {
 	op.TotalAmount = op.SkuUnitPrice * op.Count
 	op.TotalDiscountAmount = 0
 	op.RealTotalAmount = op.TotalAmount - op.TotalDiscountAmount
@@ -96,15 +108,25 @@ func (op OrderProduct) GetByOrderId(orderId int64) []*OrderProduct {
 
 func (op OrderProduct) Fmt() *OrderProductFmt {
 
+	rt := OrderProductFmt{}
+
+	rt.OrderProduct = op
+
 	ope := OrderProductExtend{}.FindByOpId(op.ID)
-	if ope == nil {
-		return &OrderProductFmt{
-			OrderProduct: op,
-		}
+	if ope != nil {
+		rt.OrderProductExtend = ope.Fmt()
 	}
-	opeFmt := ope.Fmt()
-	return &OrderProductFmt{
-		OrderProduct: op,
-		Extend:       opeFmt,
+
+	p := Product{}.FindById(op.ProductId)
+	if p != nil {
+		rt.Product = p.Fmt()
 	}
+
+	sku := ProductSku{}.FindById(op.SkuId)
+	if sku != nil {
+		rt.ProductSku = sku.Fmt()
+	}
+
+	return &rt
+
 }
