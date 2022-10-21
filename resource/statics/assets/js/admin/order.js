@@ -57,7 +57,11 @@ function orderList() {
                     return id += "    </span>" + item.orderStatusText + "</span>" + "<br><code>" + item['outOrderNo'] + "</code><br>" + item["createdTime"]
 
                 } else if ($1 == 'amountInfo') {
-                    return "总金额：100<br>优惠金额：0<br>实付金额：100<br>"
+                    var amount = "";
+                    amount += "总金额：<code>" + item.totalAmount / 100 + "</code><br>"
+                    amount += "折扣金额：<code>" + item.totalDiscountAmount / 100 + "</code><br>"
+                    amount += "实付金额：<code>" + item.realTotalAmount / 100 + "</code><br>"
+                    return amount
                 } else if ($1 == 'orderProducts') {
                     var products = "";
                     if (item["productItems"]) {
