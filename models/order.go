@@ -260,7 +260,7 @@ func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
 
 func (o Order) Fmt() (*OrderFmtOutPut, error) {
 	fmtOrder := OrderFmtOutPut{}
-	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 08:09:10")
+	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:04:05")
 	fmtOrder.OrderStatusText = o.GetOrderStatusText(o.OrderStatus)
 	fmtOrder.Thumbnail = o.Thumbnail
 	fmtOrder.ThirdPartyOrderFlag = o.GetThirdPartyFlag()

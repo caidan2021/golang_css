@@ -26,7 +26,7 @@ func Upload(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, util.FailedRespPackage(errorMsg))
 	}
 
-	newFileName := util.Md5Str(strconv.FormatInt(time.Now().Unix(), 10)) + "_" + file.Filename
+	newFileName := util.Md5Str(strconv.FormatInt(time.Now().UnixNano(), 10)) + "_" + file.Filename
 	dst := path.Join(util.Config.FileStoragePath, newFileName)
 	if err := ctx.SaveUploadedFile(file, dst); err != nil {
 		errorMsg := util.ValidatorError(err)
