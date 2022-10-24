@@ -26,4 +26,12 @@ func ApiRegisterRoute(c *gin.Engine) {
 	{
 		img.GET("/:imgName", api.ShowImage)
 	}
+
+	product := c.Group("/product")
+	{
+		sku := product.Group("/sku")
+		{
+			sku.GET("/detail", api.GetSkuInfo)
+		}
+	}
 }

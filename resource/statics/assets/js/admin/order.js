@@ -32,13 +32,13 @@ function orderList() {
             return
         }
 
-        var html = "<thead><tr><th width='250px'>ID/外部单号</th><th width='200px'>金额信息</th><th width='350px'>订单商品</th><th width='300px'>地址</th><th width='350px'>其他信息</th><th width='100px'>操作</th></tr></thead><tbody id='tbody'></tbody>"
+        var html = "<thead><tr><th width='250px'>ID/外部单号</th><th width='350px'>金额信息</th><th width='350px'>订单商品</th><th width='300px'>地址</th><th width='350px'>其他信息</th><th width='100px'>操作</th></tr></thead><tbody id='tbody'></tbody>"
         var tr = "<tr><td>{id}</td><td>{amountInfo}</td><td>{orderProducts}</td><td>{addressInfo}</td><td>{extra}</td><td>{operationBtn}</td></tr>"
         list = jsonResult.data.list
         $.each(list, function(index, item) {
             html += tr.replace(/{(\w+)}/g, function(_, $1) {
                 if ($1 == 'id') {
-                    id = "<code>" + item['id'] + "</code><br>"
+                    id = "" 
                     if (item.orderStatus == 0) {
                         id += "<span class='mr-2'> <span class='badge-dot badge-primary'>";
                     } else if (item.orderStatus == 10) {
@@ -54,13 +54,13 @@ function orderList() {
                     } else {
                         id += "<span class='mr-2'>  <span class='badge-dot badge-light'>"
                     }
-                    return id += "    </span>" + item.orderStatusText + "</span>" + "<br><code>" + item['outOrderNo'] + "</code><br>" + item["createdTime"]
+                    return id += "</span>" + item.orderStatusText + "<code>" + item['id'] + "</code><br><code>" + item['outOrderNo'] + "</code><br>" + item["createdTime"]
 
                 } else if ($1 == 'amountInfo') {
                     var amount = "";
-                    amount += "总金额：" + item.totalAmount / 100 + "<br>"
+                    amount += "总金额：" + item.totalAmount / 100 + "(货币:" + item.currency + ")<br>"
                     amount += "折扣金额：" + item.totalDiscountAmount / 100 + "<br>"
-                    amount += "实付金额：<code>" + item.realTotalAmount / 100 + "</code><br>"
+                    amount += "实付金额：<code>" + item.realTotalAmount / 100 + "(运费:" + item.postalFee / 100 + ")</code><br>"
                     return amount
                 } else if ($1 == 'orderProducts') {
                     var products = "";
@@ -122,71 +122,38 @@ function orderList() {
         // $(".dropdown-toggle").dropdown('toggle');
         listPaginate(jsonResult.data.total)
         return
-
-
-
-        var html = "<thead><tr><th width='5%'>ID</th><th>封面</th><th width='15%'>订单No</th><th width='20%'>地址</th><th width='10%'>其他信息</th><th width='8%'>状态</th><th width='10%'>系统下单时间</th><th width='5%'>操作</th></tr></thead><tbody id='tbody'></tbody>"
-        var tr = "<tr><td>{id}</td><td>{thumbnail}</td><td>{outOrderNo}</td><td>{addressInfo}</td><td>{extra}</td><td>{orderStatusText}</td><td>{createdTime}</td><td>{operationBtn}</td></tr>"
-
-        list = jsonResult.data.list
-        $.each(list, function(index, item) {
-            html += tr.replace(/{(\w+)}/g, function(_, $1) {
-                if ($1 == 'thumbnail') {
-                    var thumbnails = "";
-                    for (k = 0; k < item[$1].length; k++) {
-                        if (k != 0) {
-                            thumbnails += "&&<img src='" + item[$1][k] + "' height='75px' alt='加载失败' />"
-                        } else {
-                            thumbnails += "<img src='" + item[$1][k] + "' height='75px' alt='加载失败' />"
-                        }
-                    }
-                    return thumbnails
-                }
-                if ($1 == 'orderStatusText') {
-                    if (item.orderStatus == 0) {
-                        orderStatusText = "<span class='mr-2'> <span class='badge-dot badge-primary'>";
-                    } else if (item.orderStatus == 10) {
-                        orderStatusText = "<span class='mr-2'> <span class='badge-dot badge-brand'>";
-                    } else if (item.orderStatus == 15) {
-                        orderStatusText = "<span class='mr-2'><span class='badge-dot  badge-secondary'>";
-                    } else if (item.orderStatus == 20) {
-                        orderStatusText = "<span class='mr-2'><span class='badge-dot  badge-secondary'>";
-                    } else if (item.orderStatus == 30) {
-                        orderStatusText = "<span class='mr-2'><span class='badge-dot badge-success'>"
-                    } else if (item.orderStatus == 40) {
-                        orderStatusText = "<span class='mr-2'><span class='badge-dot badge-dark'>"
-                    } else {
-                        orderStatusText = "<span class='mr-2'>  <span class='badge-dot badge-light'>"
-                    }
-                    return orderStatusText += "</span>" + item.orderStatusText + "</span>"
-                }
-
-                if ($1 == 'extra' && !!item.extra && item.extra.length > 0) {
-                    return JSON.stringify(item.extra)
-                }
-
-                if ($1 == 'operationBtn') {
-                    operationBtn = "<input type='button' class='btn btn-outline-success dropdown-toggle' data-toggle='dropdown' value='操作'>"
-                    operationBtn += "<ul class='dropdown-menu'>"
-                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 10 + ")'>设为已下单</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 15 + ")'>设为部分到货</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 20 + ")'>设为已到货</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 30 + ")'>设为已发货</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:changOrderStatus(" + item.id + "," + 40 + ")'>设为已取消</a></li>"
-                    operationBtn += "<li ><a class='btn btn-outline-brand' href='javascript:editExtraForm(" + JSON.stringify(item).replace(/\”/g,"'") + ")'>编辑</a></li>"
-                    operationBtn += "</ul>"
-                    return operationBtn
-                }
-                return item[$1]
-            });
-
-        });
-        $(".order-list").append(html)
-        // $(".dropdown-toggle").dropdown('toggle');
-        listPaginate(jsonResult.data.total)
     }).catch(function(error) {
         console.log(error);
     });
+}
+function orderStatistic() {
+
+    var url = "/admin/order/statistics";
+
+    options = {
+        method: 'get',
+        headers: {
+            "Content-Type": "application/json charset=utf-8",
+        },
+    }
+
+    commonFetch(url, options).then(function (jsonResult) {
+        if (jsonResult.code != 0) {
+            alert("获取订单数据失败, err: " + jsonResult.msg)
+            return
+        }
+
+        var statistic = "<div><label><div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'>待下单：{waitPay}</font></div><div style='float: left; border: 1px solid blue; padding: 5px;  margin=2px'><font color='blue'> 待到货：{waitGot}</font></div><div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'> 待发货：{waitDeliver}</font></div><div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'> 已经发货：{delivered}</font></div></label></div>"
+        item = jsonResult.data.item
+
+        html = statistic.replace(/{(\w+)}/g, function(_, $1) {
+            if ($1 == "waitPay" || $1 == "waitGot" || $1 == "waitDeliver" || $1 == "delivered") {
+                return item[$1]
+            } 
+            return ""
+        });
+        $(".order-statistic").append(html)
+    })
 }
 
 function createOrder()

@@ -16,6 +16,8 @@ type OrderCreateItem struct {
 	OutOrderNo     string                 `json:"outOrderNo" binding:"required"`
 	Thumbnails     *models.OrderThumbnail `json:"thumbnails"`
 	AddressInfo    string                 `json:"addressInfo"`
+	PostalFee      int64                  `json:"postalFee" binding:"required"`
+	Currency       string                 `json:"currency" binding:"required"`
 	ProductItems   []models.OrderProduct  `json:"productItems" binding:"required"`
 	Extra          []models.ExtendFmtItem `json:"extra"`
 }
@@ -24,7 +26,7 @@ func CreateOrder(item OrderCreateItem) (*models.Order, error) {
 	newOrder := models.Order{}
 	if err := drivers.Mysql().Transaction(func(tx *gorm.DB) error {
 
-		if order, err := newOrder.CreateBaseOrder(tx, item.ThirdPartyFlag, item.OutOrderNo, *item.Thumbnails); err != nil {
+		if order, err := newOrder.CreateBaseOrder(tx, item.ThirdPartyFlag, item.OutOrderNo, *item.Thumbnails, item.PostalFee, item.Currency); err != nil {
 			return err
 		} else {
 			newOrder = *order

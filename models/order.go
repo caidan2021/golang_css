@@ -23,6 +23,8 @@ type Order struct {
 	TotalAmount         int64          `json:"totalAmount"`
 	TotalDiscountAmount int64          `json:"totalDiscountAmount"`
 	RealTotalAmount     int64          `json:"realTotalAmount"`
+	PostalFee           int64          `json:"postalFee"`
+	Currency            string         `json:"currency"`
 	Thumbnail           OrderThumbnail `json:"thumbnail"`
 
 	UnixModelTimeWithDel
@@ -43,6 +45,13 @@ type OrderFmtOutPut struct {
 	ProductItems        []*OrderProductFmt `json:"productItems"`
 	Extra               interface{}        `json:"extra"`
 	OrderHistories      []*OrderHistoryFmt `json:"orderHistories"`
+}
+
+type OrderStatistic struct {
+	WaitPay     int64 `json:"waitPay"`     // 待下单数量
+	WaitGot     int64 `json:"waitGot"`     // 待收货数量
+	WaitDeliver int64 `json:"waitDeliver"` // 待发货数量
+	Delivered   int64 `json:"delivered"`   // 已经发货订单数
 }
 
 const (
@@ -93,7 +102,7 @@ func (t *OrderThumbnail) Scan(input interface{}) error {
 	return json.Unmarshal(input.([]byte), t)
 }
 
-func (o Order) CreateBaseOrder(tx *gorm.DB, thirdPartyFlag, outOrderNo string, thumbnails OrderThumbnail) (*Order, error) {
+func (o Order) CreateBaseOrder(tx *gorm.DB, thirdPartyFlag, outOrderNo string, thumbnails OrderThumbnail, postalFee int64, currency string) (*Order, error) {
 	thirdPartyId := o.GetThirdPartyOrderIdByFlag(thirdPartyFlag)
 	if thirdPartyId == 0 {
 		return nil, fmt.Errorf("invalid third party flag")
@@ -108,6 +117,8 @@ func (o Order) CreateBaseOrder(tx *gorm.DB, thirdPartyFlag, outOrderNo string, t
 	if thumbnails != nil {
 		o.Thumbnail = thumbnails
 	}
+	o.PostalFee = postalFee
+	o.Currency = currency
 
 	if err := tx.Create(&o).Error; err != nil {
 		return nil, fmt.Errorf(fmt.Sprintf("failed to create order outOrderNo: %s, error: %v", outOrderNo, err))
@@ -282,4 +293,29 @@ func (o Order) Fmt() (*OrderFmtOutPut, error) {
 		fmtOrder.OrderHistories = append(fmtOrder.OrderHistories, item)
 	}
 	return &fmtOrder, nil
+}
+
+func (o Order) Statistic() OrderStatistic {
+
+	rt := OrderStatistic{}
+
+	_ls := []Order{}
+	if err := drivers.Mysql().Model(&o).Select("order_status", "id").Find(&_ls).Error; err != nil {
+		return rt
+	}
+
+	for _, item := range _ls {
+		switch item.OrderStatus {
+		case OrderStatusOfInit:
+			rt.WaitPay += 1
+		case OrderStatusOfPay:
+			rt.WaitGot += 1
+		case OrderStatusOfGot, OrderStatusOfGotPart:
+			rt.WaitDeliver += 1
+		case OrderStatusOfDelivery:
+			rt.Delivered += 1
+		}
+	}
+
+	return rt
 }

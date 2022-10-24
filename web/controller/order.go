@@ -54,18 +54,7 @@ func OrderList(ctx *gin.Context) {
 }
 
 func OrderListStatistics(ctx *gin.Context) {
-
-	result := make(map[string]interface{})
-
-	// 总订单数
-	result["totalCount"] = 1000
-	// 待下单数量
-	result["waitingPlaceCount"] = 100
-	// 待收货数量
-	result["waitingGotCount"] = 100
-	// 已发货数量
-	result["deliveredCount"] = 100
-
+	result := models.Order{}.Statistic()
 	ctx.JSON(http.StatusOK, util.SuccessRespPackage(&gin.H{"item": result}))
 	return
 }

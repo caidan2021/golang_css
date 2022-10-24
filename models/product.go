@@ -9,11 +9,16 @@ import (
 	"gin/util"
 )
 
-const ProductIdOfPhotoBook = 1
+const (
+	ProductStatusOfInit     = 0
+	ProductStatusOfOffLine  = 1
+	ProductStatusOfActivity = 2
+)
 
 type Product struct {
-	ID    int64  `json:"id"`
-	Title string `json:"title"`
+	ID     int64  `json:"id"`
+	Title  string `json:"title"`
+	Status int64  `json:"status"`
 	UnixModelTimeWithDel
 }
 
@@ -57,4 +62,8 @@ func (p Product) Fmt() *ProductFmt {
 	return &ProductFmt{
 		Product: p,
 	}
+}
+
+func (p Product) CanShow() bool {
+	return p.Status == ProductStatusOfActivity
 }

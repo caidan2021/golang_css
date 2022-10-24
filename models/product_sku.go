@@ -9,13 +9,19 @@ import (
 	"gin/util"
 )
 
-const SkuIdOfPhotoBook = 1
+const (
+	ProductSkuStatusOfInit     = 0
+	ProductSkuStatusOfOffLine  = 1
+	ProductSkuStatusOfActivity = 2
+)
 
 type ProductSku struct {
 	ID        int64  `json:"id"`
 	ProductId int64  `json:"productId"`
+	Status    int64  `json:"status"`
 	Title     string `json:"title"`
 	UnitPrice int64  `json:"unitPrice"` // 单位 分
+	PostalFee int64  `json:"postalFee"`
 	Currency  string `json:"currency"`
 	UnixModelTimeWithDel
 }
@@ -58,4 +64,8 @@ func (ps ProductSku) Fmt() *ProductSkuFmt {
 	return &ProductSkuFmt{
 		ProductSku: ps,
 	}
+}
+
+func (p ProductSku) CanShow() bool {
+	return p.Status == ProductSkuStatusOfActivity
 }

@@ -49,7 +49,6 @@ func (oa OrderAddress) CreateOrderAddress(tx *gorm.DB, order Order, address inte
 		return &oa, nil
 	}
 	return nil, fmt.Errorf("can't create order address")
-
 }
 
 func (OrderAddress) GetByOrderId(orderId int64) (*OrderAddress, error) {
