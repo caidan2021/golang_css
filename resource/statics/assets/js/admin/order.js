@@ -143,7 +143,13 @@ function orderStatistic() {
             return
         }
 
-        var statistic = "<div><label><div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'>待下单：{waitPay}</font></div><div style='float: left; border: 1px solid blue; padding: 5px;  margin=2px'><font color='blue'> 待到货：{waitGot}</font></div><div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'> 待发货：{waitDeliver}</font></div><div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'> 已经发货：{delivered}</font></div></label></div>"
+        var statistic = "<div><label>"
+        statistic += "<div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'>待下单：{waitPay}</font></div>"
+        statistic += "<div style='float: left; border: 1px solid blue; padding: 5px;  margin=2px'><font color='blue'> 待到货：{waitGot}</font></div>"
+        statistic += "<div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'> 待发货：{waitDeliver}</font></div>"
+        // statistic += "<div style='float: left; border: 1px solid blue; padding: 5px; margin=2px'><font color='blue'> 已经发货：{delivered}</font></div>"
+        statistic += "</label></div>"
+
         item = jsonResult.data.item
 
         html = statistic.replace(/{(\w+)}/g, function(_, $1) {

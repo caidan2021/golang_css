@@ -51,7 +51,7 @@ type OrderStatistic struct {
 	WaitPay     int64 `json:"waitPay"`     // 待下单数量
 	WaitGot     int64 `json:"waitGot"`     // 待收货数量
 	WaitDeliver int64 `json:"waitDeliver"` // 待发货数量
-	Delivered   int64 `json:"delivered"`   // 已经发货订单数
+	// Delivered   int64 `json:"delivered"`   // 已经发货订单数
 }
 
 const (
@@ -126,13 +126,15 @@ func (o Order) CreateBaseOrder(tx *gorm.DB, thirdPartyFlag, outOrderNo string, t
 	return &o, nil
 }
 
-func (o *Order) CalculateAmount(orderProducts []OrderProduct) error {
+func (o *Order) CalculateAmount(orderProducts []OrderProduct, postalFee int64) error {
 	for _, item := range orderProducts {
 		fmt.Println(item.TotalAmount)
 		o.TotalAmount += item.TotalAmount
 		o.TotalDiscountAmount += item.TotalDiscountAmount
 		o.RealTotalAmount += item.RealTotalAmount
 	}
+	o.TotalAmount += postalFee
+	o.RealTotalAmount += postalFee
 	return nil
 }
 
@@ -269,6 +271,23 @@ func (Order) GetNextStatus(currentOrderStatus int) ([]int, error) {
 	}
 }
 
+func (o Order) MultiFmt() ([]*OrderFmtOutPut, error) {
+	// orderIds := []int64{}
+	// 批量获取订单商品
+	// opList := OrderProduct{}.Search(nil, []*SearchCond{{ColumnName: "order_id", Operator: "IN (?)", Context: orderIds}}, nil)
+
+	// productIds := []int64{}
+	// 批量获取product
+	// products := Product{}.Search([]*SearchCond{{ColumnName: "id", Operator: "IN (?)", Context: productIds}})
+
+	// skuIds := []int64{}
+	// skus := ProductSku{}.Search([]*SearchCond{{ColumnName: "id", Operator: "IN (?)", Context: skuIds}})
+	// 批量获取sku
+	// 批量获取订单历史
+	return nil, nil
+
+}
+
 func (o Order) Fmt() (*OrderFmtOutPut, error) {
 	fmtOrder := OrderFmtOutPut{}
 	fmtOrder.CreatedTime = time.Unix(int64(o.CreatedAt), 0).Format("2006-01-02 15:04:05")
@@ -300,7 +319,7 @@ func (o Order) Statistic() OrderStatistic {
 	rt := OrderStatistic{}
 
 	_ls := []Order{}
-	if err := drivers.Mysql().Model(&o).Select("order_status", "id").Find(&_ls).Error; err != nil {
+	if err := drivers.Mysql().Model(&o).Where("order_status", []int{OrderStatusOfInit, OrderStatusOfPay, OrderStatusOfGot, OrderStatusOfGotPart}).Select("order_status", "id").Find(&_ls).Error; err != nil {
 		return rt
 	}
 
@@ -312,8 +331,8 @@ func (o Order) Statistic() OrderStatistic {
 			rt.WaitGot += 1
 		case OrderStatusOfGot, OrderStatusOfGotPart:
 			rt.WaitDeliver += 1
-		case OrderStatusOfDelivery:
-			rt.Delivered += 1
+			// case OrderStatusOfDelivery:
+			// 	rt.Delivered += 1
 		}
 	}
 

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"gin/util"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 )
-
 
 const (
 	MysqlPoolMaxIdeNum  = 10  // mysql 连接池最大空闲数
@@ -17,7 +17,6 @@ const (
 )
 
 var client *gorm.DB
-
 
 func Mysql() *gorm.DB {
 	return client.WithContext(context.Background())

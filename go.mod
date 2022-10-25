@@ -3,10 +3,10 @@ module gin
 go 1.17
 
 require (
-	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/validator/v10 v10.10.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	golang.org/x/text v0.3.7
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8

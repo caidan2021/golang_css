@@ -46,7 +46,7 @@ func CreateOrder(item OrderCreateItem) (*models.Order, error) {
 		}
 
 		// 计算订单金额
-		if err := newOrder.CalculateAmount(newOps); err != nil {
+		if err := newOrder.CalculateAmount(newOps, item.PostalFee); err != nil {
 			return err
 		}
 
